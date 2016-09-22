@@ -15,9 +15,7 @@ import java.util.ResourceBundle;
 import static it.fescacom.lambra.service.utils.DataExtractorUtility.extractTeamStatsData;
 import static it.fescacom.lambra.utils.UsefulMethods.waitForIdElement;
 import static it.fescacom.lambra.utils.UsefulMethods.waitForXpathElement;
-import static it.fescacom.lambra.utils.constants.ExtractorConstants.TABLE_PLAYERS_STATS_COACH;
-import static it.fescacom.lambra.utils.constants.ExtractorConstants.TABLE_PLAYERS_STATS_REGULARS;
-import static it.fescacom.lambra.utils.constants.ExtractorConstants.TABLE_PLAYERS_STATS_RESERVES;
+import static it.fescacom.lambra.utils.constants.ExtractorConstants.*;
 import static it.fescacom.lambra.web.constants.ExtractorConstants.PROPS_URL;
 import static it.fescacom.lambra.web.constants.ExtractorConstants.SECONDS_DEFAULT;
 
@@ -34,7 +32,6 @@ public class RoundByRoundExporter implements ExportService {
         MagicBAccessorImpl accessor = new MagicBAccessorImpl();
         WebDriver driver = accessor.accessStatistichePage();
 
-
         List<TeamInfo> teamInfos = getIDsForTheTeamsIPage(driver);
         int processedRows = 0;
         for (TeamInfo teamInfo : teamInfos) {
@@ -43,15 +40,11 @@ public class RoundByRoundExporter implements ExportService {
             findTheRightRound(round, driver);
 
             WebElement regulars = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_REGULARS));
-            TeamStats teamStatsPlayers = extractTeamStatsData(regulars, teamInfo.getTeamName());
-
             WebElement reserves = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_RESERVES));
-            TeamStats teamStatsReserves = extractTeamStatsData(reserves, teamInfo.getTeamName());
-
             WebElement coach = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_COACH));
-            TeamStats teamStatsCoach = extractTeamStatsData(coach, teamInfo.getTeamName());
+            TeamStats teamStatsPlayers = extractTeamStatsData(teamInfo.getTeamName(), regulars, reserves, coach);
 
-            LOGGER.info(teamInfo.getTeamName());
+            LOGGER.info(teamStatsPlayers.getTeamName());
             driver.get(accessorProps.getString(PROPS_URL));
 
         }

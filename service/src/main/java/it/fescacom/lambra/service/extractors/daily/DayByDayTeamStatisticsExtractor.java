@@ -16,19 +16,14 @@ import static it.fescacom.lambra.utils.UsefulMethods.writeToFile;
  */
 public class DayByDayTeamStatisticsExtractor extends GenericExtractor {
     private static final Logger LOGGER = Logger.getLogger(DayByDayTeamStatisticsExtractor.class);
-    private static final String URL = "http://magicb.gazzetta.it/statistiche-serieb-calcio";
-    private static final String EMAIL = "federico.scanu@gmail.com";
-    private static final String PASSWORD = "f1r3w1r3";
 
     public void export(String fileName, int round) {
 
         MagicBAccessorImpl accessor = new MagicBAccessorImpl();
         WebDriver driver = accessor.accessStatistichePage();
 
-
         HSSFWorkbook workbook = new HSSFWorkbook();
         HSSFSheet sheet = workbook.createSheet("Magic B Votes");
-
 
         try {
             writeToFile(workbook, fileName);

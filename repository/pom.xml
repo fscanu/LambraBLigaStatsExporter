@@ -13,7 +13,7 @@
     <build>
         <resources>
             <resource>
-                <directory>${project.basedir}/src/main/java</directory>
+                <directory>${project.basedir}/src/main/resources</directory>
                 <filtering>true</filtering>
                 <includes>
                     <include>**/*.properties</include>

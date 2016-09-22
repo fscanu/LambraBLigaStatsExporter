@@ -36,7 +36,7 @@ public class MagicBAccessorImpl extends GenericAccessor {
     }
 
     public WebDriver accessStatistichePage() {
-        ResourceBundle accessorProps = ResourceBundle.getBundle("accessor");
+        ResourceBundle accessorProps = ResourceBundle.getBundle("properties.accessor");
 
         WebDriver driver = getDriver(accessorProps.getString(PROPS_URL));
         WebElement error = driver.findElement(By.xpath("//div[9]/center/button"));
