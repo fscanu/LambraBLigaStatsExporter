@@ -10,6 +10,6 @@ public class CoachStats {
     private final String name;
     private final String role;
     private final String teamName;
-    private final double vote;
-    private final double redCardMalus;
+    private final Double vote;
+    private final Double redCardMalus;
 }

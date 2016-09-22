@@ -11,7 +11,7 @@ import org.openqa.selenium.remote.DesiredCapabilities;
 import java.util.ResourceBundle;
 
 import static it.fescacom.lambra.utils.UsefulMethods.waitForIdElement;
-import static it.fescacom.lambra.web.constants.ExtractorConstants.*;
+import static it.fescacom.lambra.utils.constants.Constants.*;
 
 /**
  * Created by scanufe on 11/09/16.

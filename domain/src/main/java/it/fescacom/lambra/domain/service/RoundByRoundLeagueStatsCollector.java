@@ -1,5 +1,6 @@
 package it.fescacom.lambra.domain.service;
 
+import it.fescacom.lambra.domain.CoachStats;
 import it.fescacom.lambra.domain.TeamStats;
 import it.fescacom.lambra.web.accessor.MagicBAccessorImpl;
 import lombok.Data;
@@ -12,12 +13,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static it.fescacom.lambra.domain.service.utils.DataExtractorUtility.extractTeamStatsData;
+import static it.fescacom.lambra.domain.service.utils.DataExtractorUtility.collectTeamStatsData;
 import static it.fescacom.lambra.utils.UsefulMethods.waitForIdElement;
 import static it.fescacom.lambra.utils.UsefulMethods.waitForXpathElement;
-import static it.fescacom.lambra.utils.constants.ExtractorConstants.*;
-import static it.fescacom.lambra.web.constants.ExtractorConstants.PROPS_URL;
-import static it.fescacom.lambra.web.constants.ExtractorConstants.SECONDS_DEFAULT;
+import static it.fescacom.lambra.utils.constants.Constants.*;
 
 /**
  * Created by scanufe on 21/09/16.
@@ -26,14 +25,19 @@ public class RoundByRoundLeagueStatsCollector implements ExportService {
     private static final Logger LOGGER = Logger.getLogger(RoundByRoundLeagueStatsCollector.class);
 
     public List<TeamStats> exportTeamStats(int round) {
-
         ResourceBundle accessorProps = ResourceBundle.getBundle("properties.accessor");
+
         List<TeamStats> teamStatsList = new ArrayList<TeamStats>();
         MagicBAccessorImpl accessor = new MagicBAccessorImpl();
         WebDriver driver = accessor.accessStatistichePage();
 
         List<TeamInfo> teamInfos = getIDsForTheTeamsIPage(driver);
         for (TeamInfo teamInfo : teamInfos) {
+
+            //find the right round for the coach
+            driver.get(accessorProps.getString(PROPS_URL));
+            CoachStats coachStats = collectCoachStats(driver, teamInfo.getTeamName(), round);
+
             driver.get(teamInfo.getHref());
 
             findTheRightRound(round, driver);
@@ -41,17 +45,35 @@ public class RoundByRoundLeagueStatsCollector implements ExportService {
             WebElement regulars = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_REGULARS));
             WebElement reserves = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_RESERVES));
 
-            //find the right round for the coach
-            driver.get(accessorProps.getString(PROPS_URL));
-            WebElement coach = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_COACH));
 
-            TeamStats teamStatsPlayers = extractTeamStatsData(teamInfo.getTeamName(), regulars, reserves, coach);
+            TeamStats teamStatsPlayers = collectTeamStatsData(teamInfo.getTeamName(), coachStats, regulars, reserves);
             teamStatsList.add(teamStatsPlayers);
 
             LOGGER.info(teamStatsPlayers.getTeamName());
 
         }
         return teamStatsList;
+    }
+
+
+    private CoachStats collectCoachStats(WebDriver driver, String teamName, int round) {
+        driver.get("http://magicb.gazzetta.it/statistiche-serieb-calcio");
+        waitForIdElement(driver, SECONDS_DEFAULT, "table_players");
+        WebElement coach = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_COACH));
+        coach.click();
+        waitForIdElement(driver, SECONDS_DEFAULT, "table_coach");
+        WebElement orderTeamsAlphabetically = driver.findElement(By.xpath(ORDER_TABLE_PLAYERS_STATS_COACH));
+        orderTeamsAlphabetically.click();
+
+        CoachStats coachStats = extractCoachStatsFromPage(driver, teamName, round);
+        if (null == coachStats) {
+            //Maybe in the nextpage
+            driver.findElement(By.id("table_coach_next")).click();
+            waitForIdElement(driver, SECONDS_DEFAULT, "table_coach");
+            coachStats = extractCoachStatsFromPage(driver, teamName, round);
+        }
+        LOGGER.info("Trovato Allentore della: " + coachStats.getTeamName());
+        return coachStats;
     }
 
     private void findTheRightRound(int round, WebDriver driver) {
@@ -61,22 +83,7 @@ public class RoundByRoundLeagueStatsCollector implements ExportService {
         Integer roundNumberValue;
         round_number = driver.findElement(By.id("round_number"));
         roundNumberValue = Integer.valueOf(round_number.getText());
-        try {
-            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i"));
-        } catch (org.openqa.selenium.NoSuchElementException nse) {
-            LOGGER.error("Error element not recognized");
-        } catch (org.openqa.selenium.StaleElementReferenceException e) {
-            waitForXpathElement(driver, SECONDS_DEFAULT, "//div[@id='team_round_box']/div[2]/div/div/span/i");
-            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i"));
-        }
-        try {
-            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i"));
-        } catch (org.openqa.selenium.NoSuchElementException nse) {
-            LOGGER.error("Error element not recognized");
-        } catch (org.openqa.selenium.StaleElementReferenceException e) {
-            waitForXpathElement(driver, SECONDS_DEFAULT, "//div[@id='team_round_box']/div[2]/div/div[3]/span/i");
-            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i"));
-        }
+        findRoundRequested(driver);
         while (roundNumberValue != round) {
             if (roundNumberValue < round) {
                 driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i")).click();
@@ -93,22 +100,63 @@ public class RoundByRoundLeagueStatsCollector implements ExportService {
                 roundNumberValue = Integer.valueOf(round_number.getText());
 
             }
-            try {
-                driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i"));
-            } catch (org.openqa.selenium.NoSuchElementException nse) {
-                LOGGER.error("Error element not recognized");
-            } catch (org.openqa.selenium.StaleElementReferenceException e) {
-                waitForXpathElement(driver, SECONDS_DEFAULT, "//div[@id='team_round_box']/div[2]/div/div/span/i");
-                driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i"));
+            findRoundRequested(driver);
+        }
+    }
+
+    private CoachStats extractCoachStatsFromPage(WebDriver driver, String teamName, int round) {
+        String coachName = null;
+        Double vote = null;
+        Double redCardMalus = null;
+
+        WebElement table_coaches = driver.findElement(By.id("table_coach"));
+        List<WebElement> allPageRows = table_coaches.findElements(By.tagName(TAG_TR));
+        int i = 0;
+        while (i < allPageRows.size()) {
+            WebElement row = allPageRows.get(i);
+
+            List<WebElement> cells = row.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
+            WebElement[] webElements = cells.toArray(new WebElement[cells.size()]);
+            if (i != 0) {
+                coachName = webElements[0].getText();
+                String team = webElements[2].getAttribute("data-order");
+                if (teamName.equals(team)) {
+                    String linkToCoachPage = webElements[0].findElement(By.tagName("a")).getAttribute("href");
+                    driver.get(linkToCoachPage);
+                    WebElement coachTable = driver.findElement(By.className("player-stats"));
+                    List<WebElement> coachMatches = coachTable.findElements(By.tagName(TAG_TR));
+                    WebElement[] rowsInTable = coachMatches.toArray(new WebElement[coachMatches.size()]);
+
+                    List<WebElement> elements = rowsInTable[round].findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
+                    WebElement[] array = elements.toArray(new WebElement[elements.size()]);
+
+
+                    vote = Double.valueOf(array[2].getText());
+                    redCardMalus = Double.valueOf(array[3].getText());
+                    return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+                }
             }
-            try {
-                driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i"));
-            } catch (org.openqa.selenium.NoSuchElementException nse) {
-                LOGGER.error("Error element not recognized");
-            } catch (org.openqa.selenium.StaleElementReferenceException e) {
-                waitForXpathElement(driver, SECONDS_DEFAULT, "//div[@id='team_round_box']/div[2]/div/div[3]/span/i");
-                driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i"));
-            }
+            i++;
+        }
+        return null;
+    }
+
+    private void findRoundRequested(WebDriver driver) {
+        try {
+            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i"));
+        } catch (org.openqa.selenium.NoSuchElementException nse) {
+            LOGGER.error("Error element not recognized");
+        } catch (org.openqa.selenium.StaleElementReferenceException e) {
+            waitForXpathElement(driver, SECONDS_DEFAULT, "//div[@id='team_round_box']/div[2]/div/div/span/i");
+            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i"));
+        }
+        try {
+            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i"));
+        } catch (org.openqa.selenium.NoSuchElementException nse) {
+            LOGGER.error("Error element not recognized");
+        } catch (org.openqa.selenium.StaleElementReferenceException e) {
+            waitForXpathElement(driver, SECONDS_DEFAULT, "//div[@id='team_round_box']/div[2]/div/div[3]/span/i");
+            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i"));
         }
     }
 
