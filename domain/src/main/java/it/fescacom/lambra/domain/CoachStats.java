@@ -9,7 +9,7 @@ import lombok.Data;
 public class CoachStats {
     private final String name;
     private final String role;
-    private final String match;
+    private final String teamName;
     private final double vote;
     private final double redCardMalus;
 }

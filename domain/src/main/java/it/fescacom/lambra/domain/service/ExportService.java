@@ -1,4 +1,4 @@
-package it.fescacom.lambra.service;
+package it.fescacom.lambra.domain.service;
 
 import it.fescacom.lambra.domain.TeamStats;
 

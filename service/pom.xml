@@ -18,7 +18,7 @@
         </dependency>
         <dependency>
             <groupId>it.fescacom</groupId>
-            <artifactId>repository</artifactId>
+            <artifactId>domain</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>

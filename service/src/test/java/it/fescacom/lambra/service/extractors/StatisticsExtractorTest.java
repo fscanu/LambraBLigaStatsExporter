@@ -1,7 +1,6 @@
 package it.fescacom.lambra.service.extractors;
 
-import it.fescacom.lambra.service.extractors.daily.DayByDayTeamStatisticsExtractor;
-import it.fescacom.lambra.service.extractors.totals.SerieBTotalStatisticsExtractor;
+import it.fescacom.lambra.service.extractors.round.RoundByRoundExporter;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -21,7 +20,7 @@ public class StatisticsExtractorTest {
 
     @Test
     public void extractDayByDay() {
-        Extractor extractor = new DayByDayTeamStatisticsExtractor();
+        Extractor extractor = new RoundByRoundExporter();
         int giornataNo = 1;
         for (int i = 1; i <= giornataNo; i++) {
             extractor.export(i + "_giornata_LambraBLiga.xls", i);

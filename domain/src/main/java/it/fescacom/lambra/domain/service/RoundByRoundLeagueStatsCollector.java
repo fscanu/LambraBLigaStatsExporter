@@ -1,4 +1,4 @@
-package it.fescacom.lambra.service;
+package it.fescacom.lambra.domain.service;
 
 import it.fescacom.lambra.domain.TeamStats;
 import it.fescacom.lambra.web.accessor.MagicBAccessorImpl;
@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static it.fescacom.lambra.service.utils.DataExtractorUtility.extractTeamStatsData;
+import static it.fescacom.lambra.domain.service.utils.DataExtractorUtility.extractTeamStatsData;
 import static it.fescacom.lambra.utils.UsefulMethods.waitForIdElement;
 import static it.fescacom.lambra.utils.UsefulMethods.waitForXpathElement;
 import static it.fescacom.lambra.utils.constants.ExtractorConstants.*;
@@ -22,18 +22,17 @@ import static it.fescacom.lambra.web.constants.ExtractorConstants.SECONDS_DEFAUL
 /**
  * Created by scanufe on 21/09/16.
  */
-public class RoundByRoundExporter implements ExportService {
-    private static final Logger LOGGER = Logger.getLogger(RoundByRoundExporter.class);
+public class RoundByRoundLeagueStatsCollector implements ExportService {
+    private static final Logger LOGGER = Logger.getLogger(RoundByRoundLeagueStatsCollector.class);
 
     public List<TeamStats> exportTeamStats(int round) {
 
-        ResourceBundle accessorProps = ResourceBundle.getBundle("accessor");
-
+        ResourceBundle accessorProps = ResourceBundle.getBundle("properties.accessor");
+        List<TeamStats> teamStatsList = new ArrayList<TeamStats>();
         MagicBAccessorImpl accessor = new MagicBAccessorImpl();
         WebDriver driver = accessor.accessStatistichePage();
 
         List<TeamInfo> teamInfos = getIDsForTheTeamsIPage(driver);
-        int processedRows = 0;
         for (TeamInfo teamInfo : teamInfos) {
             driver.get(teamInfo.getHref());
 
@@ -41,14 +40,18 @@ public class RoundByRoundExporter implements ExportService {
 
             WebElement regulars = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_REGULARS));
             WebElement reserves = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_RESERVES));
+
+            //find the right round for the coach
+            driver.get(accessorProps.getString(PROPS_URL));
             WebElement coach = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_COACH));
+
             TeamStats teamStatsPlayers = extractTeamStatsData(teamInfo.getTeamName(), regulars, reserves, coach);
+            teamStatsList.add(teamStatsPlayers);
 
             LOGGER.info(teamStatsPlayers.getTeamName());
-            driver.get(accessorProps.getString(PROPS_URL));
 
         }
-        return null;
+        return teamStatsList;
     }
 
     private void findTheRightRound(int round, WebDriver driver) {
