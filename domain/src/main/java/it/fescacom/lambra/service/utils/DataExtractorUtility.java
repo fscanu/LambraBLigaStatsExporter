@@ -19,7 +19,6 @@ public class DataExtractorUtility {
 
     public static TeamStats extractTeamStatsData(WebElement tablePlayers, String teamName) {
         List<WebElement> allPageRows = tablePlayers.findElements(By.tagName(TAG_TR));
-        int size = allPageRows.size();
         CoachStats coachStats = null;
         List<PlayersStats> playersStatses = new ArrayList<PlayersStats>();
         for (int i = 0; i < allPageRows.size(); i++) {

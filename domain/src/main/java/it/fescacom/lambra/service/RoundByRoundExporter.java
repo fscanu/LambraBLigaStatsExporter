@@ -43,13 +43,13 @@ public class RoundByRoundExporter implements ExportService {
             findTheRightRound(round, driver);
 
             WebElement regulars = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_REGULARS));
-            processedRows += extractTeamStatsData(regulars, teamInfo.getTeamName());
+            TeamStats teamStatsPlayers = extractTeamStatsData(regulars, teamInfo.getTeamName());
 
             WebElement reserves = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_RESERVES));
-            processedRows += extractTeamStatsData(reserves, teamInfo.getTeamName());
+            TeamStats teamStatsReserves = extractTeamStatsData(reserves, teamInfo.getTeamName());
 
             WebElement coach = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_COACH));
-            processedRows += extractTeamStatsData(coach, teamInfo.getTeamName());
+            TeamStats teamStatsCoach = extractTeamStatsData(coach, teamInfo.getTeamName());
 
             LOGGER.info(teamInfo.getTeamName());
             driver.get(accessorProps.getString(PROPS_URL));
