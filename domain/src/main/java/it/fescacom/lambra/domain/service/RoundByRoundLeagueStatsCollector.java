@@ -106,8 +106,8 @@ public class RoundByRoundLeagueStatsCollector implements ExportService {
 
     private CoachStats extractCoachStatsFromPage(WebDriver driver, String teamName, int round) {
         String coachName = null;
-        Double vote = null;
-        Double redCardMalus = null;
+        Double vote = 0d;
+        Double redCardMalus = 0d;
 
         WebElement table_coaches = driver.findElement(By.id("table_coach"));
         List<WebElement> allPageRows = table_coaches.findElements(By.tagName(TAG_TR));
@@ -125,20 +125,24 @@ public class RoundByRoundLeagueStatsCollector implements ExportService {
                     driver.get(linkToCoachPage);
                     WebElement coachTable = driver.findElement(By.className("player-stats"));
                     List<WebElement> coachMatches = coachTable.findElements(By.tagName(TAG_TR));
-                    WebElement[] rowsInTable = coachMatches.toArray(new WebElement[coachMatches.size()]);
+                    WebElement[] matches = coachMatches.toArray(new WebElement[coachMatches.size()]);
+                    for (int i1 = 1; i1 < matches.length; i1++) {
+                        WebElement match = matches[i1];
+                        List<WebElement> matchStats = match.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
+                        WebElement[] matchStatsarray = matchStats.toArray(new WebElement[matchStats.size()]);
+                        Integer roundFromRow = Integer.valueOf(matchStatsarray[0].getText());
+                        if (roundFromRow.equals(round)) {
+                            vote = Double.valueOf(matchStatsarray[2].getText());
+                            redCardMalus = Double.valueOf(matchStatsarray[3].getText());
+                            return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+                        }
+                    }
 
-                    List<WebElement> elements = rowsInTable[round].findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
-                    WebElement[] array = elements.toArray(new WebElement[elements.size()]);
-
-
-                    vote = Double.valueOf(array[2].getText());
-                    redCardMalus = Double.valueOf(array[3].getText());
-                    return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
                 }
             }
             i++;
         }
-        return null;
+        return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
     }
 
     private void findRoundRequested(WebDriver driver) {

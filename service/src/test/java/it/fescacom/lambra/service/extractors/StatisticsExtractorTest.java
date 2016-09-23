@@ -15,7 +15,7 @@ public class StatisticsExtractorTest {
     public void extractDayByDay() {
         Extractor extractor = new RoundByRoundExporter();
         int giornataNo = 5;
-        for (int i = 1; i <= giornataNo; i++) {
+        for (int i = 5; i <= giornataNo; i++) {
             extractor.export(i + "_giornata_LambraBLiga.xls", i);
             Assert.assertTrue(new File(i + "_giornata_LambraBLiga.xls").exists());
 
