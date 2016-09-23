@@ -25,30 +25,31 @@ import static it.fescacom.lambra.utils.UsefulMethods.writeToFile;
 public class RoundByRoundExporter extends GenericExtractor {
     private static final Logger LOGGER = Logger.getLogger(RoundByRoundExporter.class);
 
-    public void export(String fileName, int round) {
-
+    public void export(String fileName, int... rounds) {
         MagicBAccessorImpl accessor = new MagicBAccessorImpl();
         WebDriver driver = accessor.accessStatistichePage();
         HSSFWorkbook workbook = new HSSFWorkbook();
-        HSSFSheet sheet = workbook.createSheet("Magic B Votes");
-        int rowCount = 0;
-        Row row = sheet.createRow(++rowCount);
-        writeHeader(row);
-        ExportService exporter = new RoundByRoundLeagueStatsCollector();
-        List<TeamStats> teamStatses = exporter.exportTeamStats(round);
-        for (TeamStats teamStats : teamStatses) {
-            List<PlayersStats> players = teamStats.getPlayers();
-            for (PlayersStats player : players) {
+        for (int round : rounds) {
+            HSSFSheet sheet = workbook.createSheet(rounds + "a Giornata");
+            int rowCount = 0;
+            Row row = sheet.createRow(++rowCount);
+            writeHeader(row);
+            ExportService exporter = new RoundByRoundLeagueStatsCollector();
+            List<TeamStats> teamStatses = exporter.exportTeamStats(round);
+            for (TeamStats teamStats : teamStatses) {
+                List<PlayersStats> players = teamStats.getPlayers();
+                for (PlayersStats player : players) {
+                    row = sheet.createRow(++rowCount);
+                    writePlayerRow(player, row);
+                }
+                //separate player from coach
+                ++rowCount;
                 row = sheet.createRow(++rowCount);
-                writePlayerRow(player, row);
+                writeCoachRow(teamStats.getCoach(), row);
+                //separate teams
+                ++rowCount;
+                ++rowCount;
             }
-            //separate player from coach
-            ++rowCount;
-            row = sheet.createRow(++rowCount);
-            writeCoachRow(teamStats.getCoach(), row);
-            //separate teams
-            ++rowCount;
-            ++rowCount;
         }
         try {
             writeToFile(workbook, fileName);
@@ -60,7 +61,6 @@ public class RoundByRoundExporter extends GenericExtractor {
     }
 
     private void writeHeader(Row row) {
-
 
         Cell cell = row.createCell(1);
         cell.setCellValue("NOME");

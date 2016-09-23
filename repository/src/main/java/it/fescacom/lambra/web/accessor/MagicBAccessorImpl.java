@@ -53,8 +53,6 @@ public class MagicBAccessorImpl extends GenericAccessor {
 
         WebElement statistiche = driver.findElement(By.xpath("//a[contains(text(),'STATISTICHE')]"));
         statistiche.click();
-
-        waitForIdElement(driver, SECONDS_DEFAULT, "table_players");
         return driver;
     }
 }

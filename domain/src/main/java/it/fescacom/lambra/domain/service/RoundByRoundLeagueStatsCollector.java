@@ -31,6 +31,8 @@ public class RoundByRoundLeagueStatsCollector implements ExportService {
         MagicBAccessorImpl accessor = new MagicBAccessorImpl();
         WebDriver driver = accessor.accessStatistichePage();
 
+        waitForIdElement(driver, SECONDS_DEFAULT, "table_players");
+
         List<TeamInfo> teamInfos = getIDsForTheTeamsIPage(driver);
         for (TeamInfo teamInfo : teamInfos) {
 

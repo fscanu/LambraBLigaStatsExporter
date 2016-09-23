@@ -30,7 +30,6 @@ public class DataExtractorUtility {
                     WebElement[] webElements = cells.toArray(new WebElement[cells.size()]);
                     String nome = webElements[0].getText();
                     String ruolo = webElements[1].getText();
-                    String squadra = null == teamName ? webElements[2].getAttribute("data-order") : teamName;
                     double votoGazza = Double.valueOf(webElements[3].getText());
                     double voto = 0;
                     if (!ruolo.equals("AL")) {
