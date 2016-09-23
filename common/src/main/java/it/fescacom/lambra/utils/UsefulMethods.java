@@ -14,7 +14,6 @@ import java.io.IOException;
  */
 public class UsefulMethods {
 
-
     public static void waitForIdElement(WebDriver driver, int seconds, String elementId) {
         new WebDriverWait(driver, seconds)
                 .until(ExpectedConditions.presenceOfElementLocated(By.id(elementId)));

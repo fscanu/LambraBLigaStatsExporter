@@ -1,36 +1,71 @@
-package it.fescacom.lambra.domain.service;
+package it.fescacom.lambra.accessor.web;
 
+import it.fescacom.lambra.accessor.TeamStatsRepository;
 import it.fescacom.lambra.domain.CoachStats;
 import it.fescacom.lambra.domain.TeamStats;
-import it.fescacom.lambra.web.accessor.MagicBAccessorImpl;
 import lombok.Data;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static it.fescacom.lambra.domain.service.utils.DataExtractorUtility.collectTeamStatsData;
+import static it.fescacom.lambra.accessor.web.utils.DataExtractorUtility.collectTeamStatsData;
 import static it.fescacom.lambra.utils.UsefulMethods.waitForIdElement;
 import static it.fescacom.lambra.utils.UsefulMethods.waitForXpathElement;
 import static it.fescacom.lambra.utils.constants.Constants.*;
 
 /**
- * Created by scanufe on 21/09/16.
+ * Created by scanufe on 11/09/16.
  */
-public class RoundByRoundLeagueStatsCollector implements ExportService {
-    private static final Logger LOGGER = Logger.getLogger(RoundByRoundLeagueStatsCollector.class);
+@Data
+public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
+    private static final Logger LOGGER = Logger.getLogger(TeamStatsRepositoryWebImpl.class);
 
-    public List<TeamStats> exportTeamStats(int round) {
+    private WebDriver getDriver(String url) {
+
+        WebDriver driver = getFirefoxDriver();
+        driver.get(url);
+        return driver;
+    }
+
+    private WebDriver getFirefoxDriver() {
+        System.setProperty("webdriver.gecko.driver", "/Users/scanufe/Downloads/geckodriver");
+        DesiredCapabilities capabilities = DesiredCapabilities.firefox();
+        capabilities.setCapability("marionette", true);
+        return new FirefoxDriver(capabilities);
+    }
+
+    public WebDriver accessStatistichePage() {
         ResourceBundle accessorProps = ResourceBundle.getBundle("properties.accessor");
 
-        List<TeamStats> teamStatsList = new ArrayList<TeamStats>();
-        MagicBAccessorImpl accessor = new MagicBAccessorImpl();
-        WebDriver driver = accessor.accessStatistichePage();
+        WebDriver driver = getDriver(accessorProps.getString(PROPS_URL));
+        WebElement error = driver.findElement(By.xpath("//div[9]/center/button"));
+        error.click();
 
+        WebElement emailEl = driver.findElement(By.id(INPUT_EMAIL));
+        emailEl.sendKeys(accessorProps.getString(PROPS_EMAIL));
+
+        WebElement passwordEl = driver.findElement(By.id(INPUT_PASSWORD));
+        passwordEl.sendKeys(accessorProps.getString(PROPS_PASSWORD));
+
+        WebElement accedi = driver.findElement(By.name("submit"));
+        accedi.click();
+
+        WebElement statistiche = driver.findElement(By.xpath("//a[contains(text(),'STATISTICHE')]"));
+        statistiche.click();
+        return driver;
+    }
+
+    public List<TeamStats> findAllTeamStats(int round) {
+        List<TeamStats> teamStatsList = new ArrayList<TeamStats>();
+        ResourceBundle accessorProps = ResourceBundle.getBundle("properties.accessor");
+        final WebDriver driver = accessStatistichePage();
         waitForIdElement(driver, SECONDS_DEFAULT, "table_players");
 
         List<TeamInfo> teamInfos = getIDsForTheTeamsIPage(driver);
@@ -47,7 +82,6 @@ public class RoundByRoundLeagueStatsCollector implements ExportService {
             WebElement regulars = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_REGULARS));
             WebElement reserves = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_RESERVES));
 
-
             TeamStats teamStatsPlayers = collectTeamStatsData(teamInfo.getTeamName(), coachStats, regulars, reserves);
             teamStatsList.add(teamStatsPlayers);
 
@@ -56,7 +90,6 @@ public class RoundByRoundLeagueStatsCollector implements ExportService {
         }
         return teamStatsList;
     }
-
 
     private CoachStats collectCoachStats(WebDriver driver, String teamName, int round) {
         driver.get("http://magicb.gazzetta.it/statistiche-serieb-calcio");
