@@ -15,13 +15,11 @@ import java.io.IOException;
 public class UsefulMethods {
 
     public static void waitForIdElement(WebDriver driver, int seconds, String elementId) {
-        new WebDriverWait(driver, seconds)
-                .until(ExpectedConditions.presenceOfElementLocated(By.id(elementId)));
+        new WebDriverWait(driver, seconds).until(ExpectedConditions.presenceOfElementLocated(By.id(elementId)));
     }
 
     public static void waitForXpathElement(WebDriver driver, int seconds, String xpath) {
-        new WebDriverWait(driver, seconds)
-                .until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath)));
+        new WebDriverWait(driver, seconds).until(ExpectedConditions.presenceOfElementLocated(By.xpath(xpath)));
     }
 
     public static void writeToFile(HSSFWorkbook workbook, String fileName) throws IOException {

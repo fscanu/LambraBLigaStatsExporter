@@ -24,26 +24,17 @@ public class RoundByRoundExporter implements Exporter {
     public void export(String fileName, int... rounds) {
         HSSFWorkbook workbook = new HSSFWorkbook();
         for (int round : rounds) {
+
             HSSFSheet sheet = workbook.createSheet(round + "a Giornata");
             int rowCount = 0;
             Row row = sheet.createRow(++rowCount);
+
             writeHeader(row);
+
             CollectorStatsService exporter = new CollectorStatsStatsServiceImpl();
             List<TeamStats> teamStatses = exporter.collectTeamStatsByRound(round);
-            for (TeamStats teamStats : teamStatses) {
-                List<PlayersStats> players = teamStats.getPlayers();
-                for (PlayersStats player : players) {
-                    row = sheet.createRow(++rowCount);
-                    writePlayerRow(player, row);
-                }
-                //separate player from coach
-                ++rowCount;
-                row = sheet.createRow(++rowCount);
-                writeCoachRow(teamStats.getCoach(), row);
-                //separate teams
-                ++rowCount;
-                ++rowCount;
-            }
+
+            createSheetFromTeamStatses(sheet, rowCount, teamStatses);
         }
         try {
             writeToFile(workbook, fileName);
@@ -51,6 +42,24 @@ public class RoundByRoundExporter implements Exporter {
             e.printStackTrace();
         }
 
+    }
+
+    private void createSheetFromTeamStatses(HSSFSheet sheet, int rowCount, List<TeamStats> teamStatses) {
+        Row row;
+        for (TeamStats teamStats : teamStatses) {
+            List<PlayersStats> players = teamStats.getPlayers();
+            for (PlayersStats player : players) {
+                row = sheet.createRow(++rowCount);
+                writePlayerRow(player, row);
+            }
+            //separate player from coach
+            ++rowCount;
+            row = sheet.createRow(++rowCount);
+            writeCoachRow(teamStats.getCoach(), row);
+            //separate teams
+            ++rowCount;
+            ++rowCount;
+        }
     }
 
     private void writeHeader(Row row) {

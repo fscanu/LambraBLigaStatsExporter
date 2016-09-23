@@ -26,10 +26,12 @@ import static it.fescacom.lambra.utils.constants.Constants.*;
 @Data
 public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     private static final Logger LOGGER = Logger.getLogger(TeamStatsRepositoryWebImpl.class);
+    private WebDriver driver;
 
     private WebDriver getDriver(String url) {
-
-        WebDriver driver = getFirefoxDriver();
+        if (null == driver) {
+            driver = getFirefoxDriver();
+        }
         driver.get(url);
         return driver;
     }
@@ -41,7 +43,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         return new FirefoxDriver(capabilities);
     }
 
-    public WebDriver accessStatistichePage() {
+    private WebDriver accessStatistichePage() {
         ResourceBundle accessorProps = ResourceBundle.getBundle("properties.accessor");
 
         WebDriver driver = getDriver(accessorProps.getString(PROPS_URL));
@@ -65,7 +67,9 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     public List<TeamStats> findAllTeamStats(int round) {
         List<TeamStats> teamStatsList = new ArrayList<TeamStats>();
         ResourceBundle accessorProps = ResourceBundle.getBundle("properties.accessor");
+
         final WebDriver driver = accessStatistichePage();
+
         waitForIdElement(driver, SECONDS_DEFAULT, "table_players");
 
         List<TeamInfo> teamInfos = getIDsForTheTeamsIPage(driver);
@@ -92,7 +96,6 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     }
 
     private CoachStats collectCoachStats(WebDriver driver, String teamName, int round) {
-        driver.get("http://magicb.gazzetta.it/statistiche-serieb-calcio");
         waitForIdElement(driver, SECONDS_DEFAULT, "table_players");
         WebElement coach = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_COACH));
         coach.click();
