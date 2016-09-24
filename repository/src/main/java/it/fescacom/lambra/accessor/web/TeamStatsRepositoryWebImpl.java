@@ -153,6 +153,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         while (i < allPageRows.size()) {
             WebElement row = allPageRows.get(i);
 
+            waitForXpathElement(driver, SECONDS_DEFAULT, XPATH_TH_TD_IN_TABLE);
             List<WebElement> cells = row.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
             WebElement[] webElements = cells.toArray(new WebElement[cells.size()]);
             if (i != 0) {

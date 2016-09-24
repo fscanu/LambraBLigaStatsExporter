@@ -14,6 +14,10 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
             <groupId>it.fescacom</groupId>
             <artifactId>common</artifactId>
             <version>1.0-SNAPSHOT</version>
