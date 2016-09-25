@@ -13,11 +13,6 @@ public class Constants {
     public static final String XPATH_TH_TD_IN_TABLE = ".//*[local-name(.)='th' or local-name(.)='td']";
     public static final String TAG_TR = "tr";
 
-    //Properties labels
-    public static final String PROPS_EMAIL = "accessor.email";
-    public static final String PROPS_PASSWORD = "accessor.password";
-    public static final String PROPS_URL = "accessor.url";
-
     public static final String INPUT_EMAIL = "email";
     public static final String INPUT_PASSWORD = "password";
 }

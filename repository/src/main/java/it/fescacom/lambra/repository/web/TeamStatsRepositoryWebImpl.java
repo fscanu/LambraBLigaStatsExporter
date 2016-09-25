@@ -40,6 +40,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
 
     @Value("${accessor.password}")
     private String accessorPassword;
+    private boolean firstAccess = true;
 
 
     private WebDriver getDriver(String url) {
@@ -60,17 +61,20 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     private WebDriver accessStatistichePage() {
 
         WebDriver driver = getDriver(accessorUrl);
-        WebElement error = driver.findElement(By.xpath("//div[9]/center/button"));
-        error.click();
+        if (firstAccess) {
+            firstAccess = false;
+            WebElement error = driver.findElement(By.xpath("//div[9]/center/button"));
+            error.click();
 
-        WebElement emailEl = driver.findElement(By.id(INPUT_EMAIL));
-        emailEl.sendKeys(accessorEmail);
+            WebElement emailEl = driver.findElement(By.id(INPUT_EMAIL));
+            emailEl.sendKeys(accessorEmail);
 
-        WebElement passwordEl = driver.findElement(By.id(INPUT_PASSWORD));
-        passwordEl.sendKeys(accessorPassword);
+            WebElement passwordEl = driver.findElement(By.id(INPUT_PASSWORD));
+            passwordEl.sendKeys(accessorPassword);
 
-        WebElement accedi = driver.findElement(By.name("submit"));
-        accedi.click();
+            WebElement accedi = driver.findElement(By.name("submit"));
+            accedi.click();
+        }
 
         WebElement statistiche = driver.findElement(By.xpath("//a[contains(text(),'STATISTICHE')]"));
         statistiche.click();
@@ -165,6 +169,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         Double vote = 0d;
         Double redCardMalus = 0d;
 
+        waitForIdElement(driver, SECONDS_DEFAULT, "table_coach");
         WebElement table_coaches = driver.findElement(By.id("table_coach"));
         List<WebElement> allPageRows = table_coaches.findElements(By.tagName(TAG_TR));
         int i = 0;
@@ -191,15 +196,16 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
                         if (roundFromRow.equals(round)) {
                             vote = Double.valueOf(matchStatsarray[2].getText());
                             redCardMalus = Double.valueOf(matchStatsarray[3].getText());
+
                             return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
                         }
                     }
-
+                    return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
                 }
             }
             i++;
         }
-        return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+        return null;
     }
 
     private void findRoundRequested(WebDriver driver) {
