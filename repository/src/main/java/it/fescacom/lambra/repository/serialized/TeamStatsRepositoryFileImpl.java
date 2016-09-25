@@ -1,6 +1,6 @@
-package it.fescacom.lambra.accessor.serialized;
+package it.fescacom.lambra.repository.serialized;
 
-import it.fescacom.lambra.accessor.TeamStatsRepository;
+import it.fescacom.lambra.repository.TeamStatsRepository;
 import it.fescacom.lambra.domain.TeamStats;
 
 import java.util.List;

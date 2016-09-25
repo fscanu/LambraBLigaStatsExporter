@@ -1,6 +1,6 @@
-package it.fescacom.lambra.accessor.web;
+package it.fescacom.lambra.repository.web;
 
-import it.fescacom.lambra.accessor.TeamStatsRepository;
+import it.fescacom.lambra.repository.TeamStatsRepository;
 import it.fescacom.lambra.domain.CoachStats;
 import it.fescacom.lambra.domain.TeamStats;
 import lombok.Data;
@@ -15,10 +15,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import static it.fescacom.lambra.accessor.web.utils.DataExtractorUtility.collectTeamStatsData;
-import static it.fescacom.lambra.utils.UsefulMethods.waitForIdElement;
-import static it.fescacom.lambra.utils.UsefulMethods.waitForXpathElement;
-import static it.fescacom.lambra.utils.constants.Constants.*;
+import static it.fescacom.lambra.repository.web.utils.DataExtractorUtility.collectTeamStatsData;
+import static it.fescacom.lambra.common.UsefulMethods.waitForIdElement;
+import static it.fescacom.lambra.common.UsefulMethods.waitForXpathElement;
+import static it.fescacom.lambra.common.constants.Constants.*;
 
 /**
  * Created by scanufe on 11/09/16.
@@ -44,7 +44,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     }
 
     private WebDriver accessStatistichePage() {
-        ResourceBundle accessorProps = ResourceBundle.getBundle("properties.accessor");
+        ResourceBundle accessorProps = ResourceBundle.getBundle("properties.repository");
 
         WebDriver driver = getDriver(accessorProps.getString(PROPS_URL));
         WebElement error = driver.findElement(By.xpath("//div[9]/center/button"));
@@ -66,7 +66,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
 
     public List<TeamStats> findAllTeamStats(int round) {
         List<TeamStats> teamStatsList = new ArrayList<TeamStats>();
-        ResourceBundle accessorProps = ResourceBundle.getBundle("properties.accessor");
+        ResourceBundle accessorProps = ResourceBundle.getBundle("properties.repository");
 
         final WebDriver driver = accessStatistichePage();
 

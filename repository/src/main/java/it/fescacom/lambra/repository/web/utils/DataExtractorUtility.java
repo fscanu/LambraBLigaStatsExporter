@@ -1,4 +1,4 @@
-package it.fescacom.lambra.accessor.web.utils;
+package it.fescacom.lambra.repository.web.utils;
 
 import it.fescacom.lambra.domain.CoachStats;
 import it.fescacom.lambra.domain.PlayersStats;
@@ -9,8 +9,8 @@ import org.openqa.selenium.WebElement;
 import java.util.ArrayList;
 import java.util.List;
 
-import static it.fescacom.lambra.utils.constants.Constants.TAG_TR;
-import static it.fescacom.lambra.utils.constants.Constants.XPATH_TH_TD_IN_TABLE;
+import static it.fescacom.lambra.common.constants.Constants.TAG_TR;
+import static it.fescacom.lambra.common.constants.Constants.XPATH_TH_TD_IN_TABLE;
 
 /**
  * Created by scanufe on 21/09/16.

@@ -1,7 +1,7 @@
 package it.fescacom.lambra.service.exporter.collector;
 
-import it.fescacom.lambra.accessor.TeamStatsRepository;
-import it.fescacom.lambra.accessor.web.TeamStatsRepositoryWebImpl;
+import it.fescacom.lambra.repository.TeamStatsRepository;
+import it.fescacom.lambra.repository.web.TeamStatsRepositoryWebImpl;
 import it.fescacom.lambra.domain.TeamStats;
 
 import java.util.List;

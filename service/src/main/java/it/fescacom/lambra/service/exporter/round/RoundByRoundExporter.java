@@ -14,7 +14,7 @@ import org.apache.poi.ss.usermodel.Row;
 import java.io.IOException;
 import java.util.List;
 
-import static it.fescacom.lambra.utils.UsefulMethods.writeToFile;
+import static it.fescacom.lambra.common.UsefulMethods.writeToFile;
 
 /**
  * Created by scanufe on 11/09/16.

@@ -1,4 +1,4 @@
-package it.fescacom.lambra.utils.constants;
+package it.fescacom.lambra.common.constants;
 
 /**
  * Created by scanufe on 11/09/16.

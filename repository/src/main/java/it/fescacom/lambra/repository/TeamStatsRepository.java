@@ -1,4 +1,4 @@
-package it.fescacom.lambra.accessor;
+package it.fescacom.lambra.repository;
 
 import it.fescacom.lambra.domain.TeamStats;
 

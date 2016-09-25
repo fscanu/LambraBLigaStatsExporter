@@ -1,4 +1,4 @@
-package it.fescacom.lambra.utils;
+package it.fescacom.lambra.common;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.openqa.selenium.By;
