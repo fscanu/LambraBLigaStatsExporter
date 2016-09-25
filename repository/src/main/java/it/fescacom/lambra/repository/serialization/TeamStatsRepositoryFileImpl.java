@@ -1,13 +1,15 @@
-package it.fescacom.lambra.repository.serialized;
+package it.fescacom.lambra.repository.serialization;
 
-import it.fescacom.lambra.repository.TeamStatsRepository;
 import it.fescacom.lambra.domain.TeamStats;
+import it.fescacom.lambra.repository.TeamStatsRepository;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 /**
  * Created by scanufe on 23/09/2016.
  */
+@Service
 public class TeamStatsRepositoryFileImpl implements TeamStatsRepository {
 
     public List<TeamStats> findAllTeamStats(int round) {

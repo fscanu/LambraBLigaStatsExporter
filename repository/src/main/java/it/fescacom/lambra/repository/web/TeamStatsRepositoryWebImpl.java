@@ -1,8 +1,9 @@
 package it.fescacom.lambra.repository.web;
 
-import it.fescacom.lambra.repository.TeamStatsRepository;
 import it.fescacom.lambra.domain.CoachStats;
 import it.fescacom.lambra.domain.TeamStats;
+import it.fescacom.lambra.repository.TeamStatsRepository;
+import it.fescacom.lambra.repository.serialization.util.SerializationUtil;
 import lombok.Data;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -10,23 +11,36 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.ResourceBundle;
 
-import static it.fescacom.lambra.repository.web.utils.DataExtractorUtility.collectTeamStatsData;
 import static it.fescacom.lambra.common.UsefulMethods.waitForIdElement;
 import static it.fescacom.lambra.common.UsefulMethods.waitForXpathElement;
 import static it.fescacom.lambra.common.constants.Constants.*;
+import static it.fescacom.lambra.repository.web.utils.DataExtractorUtility.collectTeamStatsData;
 
 /**
  * Created by scanufe on 11/09/16.
  */
-@Data
+@Service("teamStatsRepository")
 public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
+
     private static final Logger LOGGER = Logger.getLogger(TeamStatsRepositoryWebImpl.class);
     private WebDriver driver;
+
+    @Value("${accessor.url}")
+    private String accessorUrl;
+
+    @Value("${accessor.email}")
+    private String accessorEmail;
+
+    @Value("${accessor.password}")
+    private String accessorPassword;
+
 
     private WebDriver getDriver(String url) {
         if (null == driver) {
@@ -44,17 +58,16 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     }
 
     private WebDriver accessStatistichePage() {
-        ResourceBundle accessorProps = ResourceBundle.getBundle("properties.repository");
 
-        WebDriver driver = getDriver(accessorProps.getString(PROPS_URL));
+        WebDriver driver = getDriver(accessorUrl);
         WebElement error = driver.findElement(By.xpath("//div[9]/center/button"));
         error.click();
 
         WebElement emailEl = driver.findElement(By.id(INPUT_EMAIL));
-        emailEl.sendKeys(accessorProps.getString(PROPS_EMAIL));
+        emailEl.sendKeys(accessorEmail);
 
         WebElement passwordEl = driver.findElement(By.id(INPUT_PASSWORD));
-        passwordEl.sendKeys(accessorProps.getString(PROPS_PASSWORD));
+        passwordEl.sendKeys(accessorPassword);
 
         WebElement accedi = driver.findElement(By.name("submit"));
         accedi.click();
@@ -66,7 +79,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
 
     public List<TeamStats> findAllTeamStats(int round) {
         List<TeamStats> teamStatsList = new ArrayList<TeamStats>();
-        ResourceBundle accessorProps = ResourceBundle.getBundle("properties.repository");
+
 
         final WebDriver driver = accessStatistichePage();
 
@@ -76,7 +89,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         for (TeamInfo teamInfo : teamInfos) {
 
             //find the right round for the coach
-            driver.get(accessorProps.getString(PROPS_URL));
+            driver.get(accessorUrl);
             CoachStats coachStats = collectCoachStats(driver, teamInfo.getTeamName(), round);
 
             driver.get(teamInfo.getHref());
@@ -91,6 +104,11 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
 
             LOGGER.info(teamStatsPlayers.getTeamName());
 
+        }
+        try {
+            SerializationUtil.serialize(teamStatsList, round + "teamStats.ser");
+        } catch (IOException e) {
+            LOGGER.error("Error during serialization");
         }
         return teamStatsList;
     }

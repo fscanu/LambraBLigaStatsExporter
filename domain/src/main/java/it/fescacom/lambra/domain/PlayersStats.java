@@ -2,11 +2,13 @@ package it.fescacom.lambra.domain;
 
 import lombok.Data;
 
+import java.io.Serializable;
+
 /**
  * Created by scanufe on 21/09/16.
  */
 @Data
-public class PlayersStats {
+public class PlayersStats implements Serializable{
     private final String name;
     private final String role;
     private final String teamName;

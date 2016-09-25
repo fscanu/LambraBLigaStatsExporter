@@ -12,6 +12,14 @@
     <artifactId>service</artifactId>
     <dependencies>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+        </dependency>
+        <dependency>
             <groupId>it.fescacom</groupId>
             <artifactId>common</artifactId>
             <version>1.0-SNAPSHOT</version>
@@ -25,10 +33,6 @@
             <groupId>it.fescacom</groupId>
             <artifactId>repository</artifactId>
             <version>1.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
         </dependency>
     </dependencies>
 

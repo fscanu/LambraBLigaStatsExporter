@@ -3,13 +3,14 @@ package it.fescacom.lambra.service.exporter.round;
 import it.fescacom.lambra.domain.CoachStats;
 import it.fescacom.lambra.domain.PlayersStats;
 import it.fescacom.lambra.domain.TeamStats;
-import it.fescacom.lambra.service.exporter.collector.CollectorStatsService;
-import it.fescacom.lambra.service.exporter.collector.CollectorStatsStatsServiceImpl;
 import it.fescacom.lambra.service.exporter.Exporter;
+import it.fescacom.lambra.service.exporter.collector.CollectorStatsStatsServiceImpl;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,7 +20,15 @@ import static it.fescacom.lambra.common.UsefulMethods.writeToFile;
 /**
  * Created by scanufe on 11/09/16.
  */
+@Service
 public class RoundByRoundExporter implements Exporter {
+
+    private final CollectorStatsStatsServiceImpl collStatsService;
+
+    @Autowired
+    public RoundByRoundExporter(CollectorStatsStatsServiceImpl collectorStatsService) {
+        this.collStatsService = collectorStatsService;
+    }
 
     public void export(String fileName, int... rounds) {
         HSSFWorkbook workbook = new HSSFWorkbook();
@@ -31,8 +40,7 @@ public class RoundByRoundExporter implements Exporter {
 
             writeHeader(row);
 
-            CollectorStatsService exporter = new CollectorStatsStatsServiceImpl();
-            List<TeamStats> teamStatses = exporter.collectTeamStatsByRound(round);
+            List<TeamStats> teamStatses = collStatsService.collectTeamStatsByRound(round);
 
             createSheetFromTeamStatses(sheet, rowCount, teamStatses);
         }

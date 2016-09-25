@@ -5,6 +5,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -12,6 +13,7 @@ import java.io.IOException;
 /**
  * Created by scanufe on 11/09/16.
  */
+@Component
 public class UsefulMethods {
 
     public static void waitForIdElement(WebDriver driver, int seconds, String elementId) {
