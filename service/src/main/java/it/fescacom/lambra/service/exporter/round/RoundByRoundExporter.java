@@ -1,8 +1,8 @@
 package it.fescacom.lambra.service.exporter.round;
 
-import it.fescacom.lambra.domain.CoachStats;
-import it.fescacom.lambra.domain.PlayersStats;
-import it.fescacom.lambra.domain.TeamStats;
+import it.fescacom.lambra.domain.stats.CoachStats;
+import it.fescacom.lambra.domain.stats.PlayersStats;
+import it.fescacom.lambra.domain.stats.TeamStats;
 import it.fescacom.lambra.service.exporter.Exporter;
 import it.fescacom.lambra.service.exporter.collector.CollectorStatsStatsServiceImpl;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static it.fescacom.lambra.common.UsefulMethods.writeToFile;
 
@@ -40,7 +42,7 @@ public class RoundByRoundExporter implements Exporter {
 
             writeHeader(row);
 
-            List<TeamStats> teamStatses = collStatsService.collectTeamStatsByRound(round);
+            Map<String, TeamStats> teamStatses = collStatsService.collectTeamStatsByRound(round);
 
             createSheetFromTeamStatses(sheet, rowCount, teamStatses);
         }
@@ -52,10 +54,11 @@ public class RoundByRoundExporter implements Exporter {
 
     }
 
-    private void createSheetFromTeamStatses(HSSFSheet sheet, int rowCount, List<TeamStats> teamStatses) {
+    private void createSheetFromTeamStatses(HSSFSheet sheet, int rowCount, Map<String, TeamStats> teamStatses) {
         Row row;
-        for (TeamStats teamStats : teamStatses) {
-            List<PlayersStats> players = teamStats.getPlayers();
+        final Set<String> teamNames = teamStatses.keySet();
+        for (String teamName : teamNames) {
+            HashSet<PlayersStats> players = teamStatses.get(teamName).getPlayers();
             for (PlayersStats player : players) {
                 row = sheet.createRow(++rowCount);
                 writePlayerRow(player, row);
@@ -63,7 +66,7 @@ public class RoundByRoundExporter implements Exporter {
             //separate player from coach
             ++rowCount;
             row = sheet.createRow(++rowCount);
-            writeCoachRow(teamStats.getCoach(), row);
+            writeCoachRow(teamStatses.get(teamName).getCoach(), row);
             //separate teams
             ++rowCount;
             ++rowCount;

@@ -1,7 +1,7 @@
 package it.fescacom.lambra.repository.web;
 
-import it.fescacom.lambra.domain.CoachStats;
-import it.fescacom.lambra.domain.TeamStats;
+import it.fescacom.lambra.domain.stats.CoachStats;
+import it.fescacom.lambra.domain.stats.TeamStats;
 import it.fescacom.lambra.repository.TeamStatsRepository;
 import it.fescacom.lambra.repository.serialization.util.SerializationUtil;
 import lombok.Data;
@@ -16,7 +16,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static it.fescacom.lambra.common.UsefulMethods.waitForIdElement;
 import static it.fescacom.lambra.common.UsefulMethods.waitForXpathElement;
@@ -80,8 +82,8 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         return driver;
     }
 
-    public List<TeamStats> findAllTeamStats(int round) {
-        List<TeamStats> teamStatsList = new ArrayList<TeamStats>();
+    public Map<String, TeamStats> findAllTeamStats(int round) {
+        Map<String, TeamStats> teamStatsMap = new HashMap<String, TeamStats>();
 
         final WebDriver driver = accessStatistichePage();
 
@@ -92,7 +94,8 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
 
             //find the right round for the coach
             driver.get(accessorUrl);
-            CoachStats coachStats = collectCoachStats(driver, teamInfo.getTeamName(), round);
+            final String teamName = teamInfo.getTeamName();
+            CoachStats coachStats = collectCoachStats(driver, teamName, round);
 
             driver.get(teamInfo.getHref());
 
@@ -101,18 +104,18 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
             WebElement regulars = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_REGULARS));
             WebElement reserves = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_RESERVES));
 
-            TeamStats teamStatsPlayers = collectTeamStatsData(teamInfo.getTeamName(), coachStats, regulars, reserves);
-            teamStatsList.add(teamStatsPlayers);
+            TeamStats teamStatsPlayers = collectTeamStatsData(teamName, coachStats, regulars, reserves);
+            teamStatsMap.put(teamName, teamStatsPlayers);
 
             LOGGER.info(teamStatsPlayers.getTeamName());
 
         }
         try {
-            SerializationUtil.serialize(teamStatsList, round + "teamStats.ser");
+            SerializationUtil.serialize(teamStatsMap, round + "_giornata_LambraBLiga.ser");
         } catch (IOException e) {
             LOGGER.error("Error during serialization");
         }
-        return teamStatsList;
+        return teamStatsMap;
     }
 
     private CoachStats collectCoachStats(WebDriver driver, String teamName, int round) {

@@ -1,4 +1,4 @@
-package it.fescacom.lambra.domain;
+package it.fescacom.lambra.domain.stats;
 
 import lombok.Data;
 

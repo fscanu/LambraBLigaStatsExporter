@@ -1,13 +1,13 @@
 package it.fescacom.lambra.service.exporter;
 
-import it.fescacom.lambra.domain.CoachStats;
-import it.fescacom.lambra.domain.PlayersStats;
-import it.fescacom.lambra.domain.TeamStats;
+import it.fescacom.lambra.domain.stats.CoachStats;
+import it.fescacom.lambra.domain.stats.PlayersStats;
+import it.fescacom.lambra.domain.stats.TeamStats;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 
 /**
  * Created by scanufe on 26/09/2016.
@@ -31,7 +31,7 @@ public class CalculateResultsService {
                 SAMPLE_VOTE_1, SAMPLE_VOTE_1, SAMPLE_VOTE_1, SAMPLE_VOTE_0, SAMPLE_VOTE_1, SAMPLE_VOTE_1);
         PlayersStats playersStats5 = new PlayersStats("player4reserve", "DF", "team5", SAMPLE_VOTE_1, SAMPLE_VOTE_1,
                 SAMPLE_VOTE_1, SAMPLE_VOTE_1, SAMPLE_VOTE_1, SAMPLE_VOTE_3, SAMPLE_VOTE_1, SAMPLE_VOTE_1);
-        List<PlayersStats> playerList = new ArrayList<PlayersStats>();
+        HashSet<PlayersStats> playerList = new HashSet<PlayersStats>();
         playerList.add(playersStats1);
         playerList.add(playersStats2);
         playerList.add(playersStats3);
