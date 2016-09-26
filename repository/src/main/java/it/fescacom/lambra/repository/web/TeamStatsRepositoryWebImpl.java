@@ -42,7 +42,6 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     private String accessorPassword;
     private boolean firstAccess = true;
 
-
     private WebDriver getDriver(String url) {
         if (null == driver) {
             driver = getFirefoxDriver();
@@ -83,7 +82,6 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
 
     public List<TeamStats> findAllTeamStats(int round) {
         List<TeamStats> teamStatsList = new ArrayList<TeamStats>();
-
 
         final WebDriver driver = accessStatistichePage();
 
@@ -143,7 +141,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         Integer roundNumberValue;
         round_number = driver.findElement(By.id("round_number"));
         roundNumberValue = Integer.valueOf(round_number.getText());
-        findRoundRequested(driver);
+        findRound(driver);
         while (roundNumberValue != round) {
             if (roundNumberValue < round) {
                 driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i")).click();
@@ -160,18 +158,20 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
                 roundNumberValue = Integer.valueOf(round_number.getText());
 
             }
-            findRoundRequested(driver);
+            findRound(driver);
         }
     }
 
     private CoachStats extractCoachStatsFromPage(WebDriver driver, String teamName, int round) {
-        String coachName = null;
-        Double vote = 0d;
-        Double redCardMalus = 0d;
 
         waitForIdElement(driver, SECONDS_DEFAULT, "table_coach");
         WebElement table_coaches = driver.findElement(By.id("table_coach"));
         List<WebElement> allPageRows = table_coaches.findElements(By.tagName(TAG_TR));
+        return getCoachStatsByRound(driver, teamName, round, allPageRows);
+    }
+
+    private CoachStats getCoachStatsByRound(WebDriver driver, String teamName, int round, List<WebElement> allPageRows) {
+        String coachName;
         int i = 0;
         while (i < allPageRows.size()) {
             WebElement row = allPageRows.get(i);
@@ -185,22 +185,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
                 if (teamName.equals(team)) {
                     String linkToCoachPage = webElements[0].findElement(By.tagName("a")).getAttribute("href");
                     driver.get(linkToCoachPage);
-                    WebElement coachTable = driver.findElement(By.className("player-stats"));
-                    List<WebElement> coachMatches = coachTable.findElements(By.tagName(TAG_TR));
-                    WebElement[] matches = coachMatches.toArray(new WebElement[coachMatches.size()]);
-                    for (int i1 = 1; i1 < matches.length; i1++) {
-                        WebElement match = matches[i1];
-                        List<WebElement> matchStats = match.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
-                        WebElement[] matchStatsarray = matchStats.toArray(new WebElement[matchStats.size()]);
-                        Integer roundFromRow = Integer.valueOf(matchStatsarray[0].getText());
-                        if (roundFromRow.equals(round)) {
-                            vote = Double.valueOf(matchStatsarray[2].getText());
-                            redCardMalus = Double.valueOf(matchStatsarray[3].getText());
-
-                            return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
-                        }
-                    }
-                    return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+                    return extractCoachStatsFromPageByRound(teamName, round, coachName);
                 }
             }
             i++;
@@ -208,7 +193,32 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         return null;
     }
 
-    private void findRoundRequested(WebDriver driver) {
+    private CoachStats extractCoachStatsFromPageByRound(String teamName, int round, String coachName) {
+        Double vote = 0d;
+        Double redCardMalus = 0d;
+
+        WebElement coachTable = driver.findElement(By.className("player-stats"));
+
+        List<WebElement> coachMatches = coachTable.findElements(By.tagName(TAG_TR));
+        WebElement[] matches = coachMatches.toArray(new WebElement[coachMatches.size()]);
+
+        for (int roundIndex = 1; roundIndex < matches.length; roundIndex++) {
+            WebElement match = matches[roundIndex];
+            List<WebElement> matchStats = match.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
+            WebElement[] matchStatsarray = matchStats.toArray(new WebElement[matchStats.size()]);
+
+            Integer roundFromRow = Integer.valueOf(matchStatsarray[0].getText());
+            if (roundFromRow.equals(round)) {
+                vote = Double.valueOf(matchStatsarray[2].getText());
+                redCardMalus = Double.valueOf(matchStatsarray[3].getText());
+
+                return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+            }
+        }
+        return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+    }
+
+    private void findRound(WebDriver driver) {
         try {
             driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i"));
         } catch (org.openqa.selenium.NoSuchElementException nse) {

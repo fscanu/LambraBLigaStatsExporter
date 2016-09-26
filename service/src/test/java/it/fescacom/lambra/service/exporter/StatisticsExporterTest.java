@@ -15,15 +15,15 @@ import java.io.File;
  * Created by scanufe on 11/09/16.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:service-context.xml"})
+@ContextConfiguration(locations = { "classpath:service-context.xml" })
 public class StatisticsExporterTest {
     @Autowired
     private CollectorStatsStatsServiceImpl collStatsService;
 
     @Test
-    public void shouldCreateExcelExportOfThe5thRound() {
+    public void shouldCreateExcelExportOfThe6thRound() {
         Exporter exporter = new RoundByRoundExporter(collStatsService);
-        exporter.export("LambraBLiga.xls", 1, 2, 3, 4, 5);
+        exporter.export("LambraBLiga.xls", 6);
         Assert.assertTrue(new File("LambraBLiga.xls").exists());
     }
 }
