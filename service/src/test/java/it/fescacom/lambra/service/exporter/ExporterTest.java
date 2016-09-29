@@ -15,7 +15,7 @@ import java.io.File;
  * Created by scanufe on 11/09/16.
  */
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:service-context.xml" })
+@ContextConfiguration(locations = {"classpath:service-context.xml"})
 public class ExporterTest {
     @Autowired
     private CollectorStatsStatsServiceImpl collStatsService;
