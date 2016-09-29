@@ -1,12 +1,11 @@
 package it.fescacom.lambra.repository.web.utils;
 
-import it.fescacom.lambra.domain.CoachStats;
-import it.fescacom.lambra.domain.PlayersStats;
-import it.fescacom.lambra.domain.TeamStats;
+import it.fescacom.lambra.domain.stats.CoachStats;
+import it.fescacom.lambra.domain.stats.PlayersStats;
+import it.fescacom.lambra.domain.stats.TeamStats;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
