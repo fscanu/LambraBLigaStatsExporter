@@ -1,16 +1,16 @@
-package it.fescacom.lambra.domain;
+package it.fescacom.lambra.domain.stats;
 
 import lombok.Data;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashSet;
 
 /**
  * Created by scanufe on 21/09/16.
  */
 @Data
-public class TeamStats  implements Serializable {
+public class TeamStats implements Serializable {
     private final String teamName;
-    private final List<PlayersStats> players;
+    private final HashSet<PlayersStats> players;
     private final CoachStats coach;
 }

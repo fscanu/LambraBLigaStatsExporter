@@ -1,12 +1,12 @@
 package it.fescacom.lambra.service.exporter.collector;
 
-import it.fescacom.lambra.domain.TeamStats;
+import it.fescacom.lambra.domain.stats.TeamStats;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * Created by scanufe on 21/09/16.
  */
 public interface CollectorStatsService {
-    List<TeamStats> collectTeamStatsByRound(int round);
+    Map<String, TeamStats> collectTeamStatsByRound(int round);
 }

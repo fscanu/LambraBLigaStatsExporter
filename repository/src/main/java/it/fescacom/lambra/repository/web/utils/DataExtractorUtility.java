@@ -7,6 +7,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import static it.fescacom.lambra.common.constants.Constants.TAG_TR;
@@ -18,7 +19,7 @@ import static it.fescacom.lambra.common.constants.Constants.XPATH_TH_TD_IN_TABLE
 public class DataExtractorUtility {
 
     public static TeamStats collectTeamStatsData(String teamName, CoachStats coachStats, WebElement... tablePlayers) {
-        List<PlayersStats> playersStatses = new ArrayList<PlayersStats>();
+        HashSet<PlayersStats> playersStatses = new HashSet<PlayersStats>();
         for (WebElement tablePlayer : tablePlayers) {
             List<WebElement> allPageRows = tablePlayer.findElements(By.tagName(TAG_TR));
             for (int i = 0; i < allPageRows.size(); i++) {

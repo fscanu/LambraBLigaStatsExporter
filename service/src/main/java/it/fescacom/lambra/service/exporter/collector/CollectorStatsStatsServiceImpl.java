@@ -1,11 +1,11 @@
 package it.fescacom.lambra.service.exporter.collector;
 
-import it.fescacom.lambra.domain.TeamStats;
+import it.fescacom.lambra.domain.stats.TeamStats;
 import it.fescacom.lambra.repository.web.TeamStatsRepositoryWebImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.Map;
 
 /**
  * Created by scanufe on 21/09/16.
@@ -19,7 +19,7 @@ public class CollectorStatsStatsServiceImpl implements CollectorStatsService {
         this.teamStatsRepository = teamStatsRepository;
     }
 
-    public List<TeamStats> collectTeamStatsByRound(int round) {
+    public Map<String, TeamStats> collectTeamStatsByRound(int round) {
 
         return teamStatsRepository.findAllTeamStats(round);
     }
