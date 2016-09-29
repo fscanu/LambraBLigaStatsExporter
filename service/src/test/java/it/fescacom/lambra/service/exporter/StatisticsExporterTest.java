@@ -23,7 +23,7 @@ public class StatisticsExporterTest {
     @Test
     public void shouldCreateExcelExportOfThe5thRound() {
         Exporter exporter = new RoundByRoundExporter(collStatsService);
-        exporter.export("LambraBLiga.xls", 1, 2, 3, 4, 5);
+        exporter.export("LambraBLiga.xls", 1, 2, 3, 4, 5, 6);
         Assert.assertTrue(new File("LambraBLiga.xls").exists());
     }
 }
