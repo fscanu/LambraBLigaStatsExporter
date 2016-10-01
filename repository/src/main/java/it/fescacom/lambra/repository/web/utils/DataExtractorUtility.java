@@ -30,37 +30,30 @@ public class DataExtractorUtility {
                     WebElement[] webElements = cells.toArray(new WebElement[cells.size()]);
                     String nome = webElements[0].getText();
                     String ruolo = webElements[1].getText();
-                    double votoGazza = Double.valueOf(webElements[3].getText());
-                    double voto = 0;
+                    Double votoGazza = Double.valueOf(webElements[3].getText());
+                    Double voto = 0d;
                     if (!ruolo.equals("AL")) {
-                        Integer goals = Integer.valueOf(webElements[4].getText());
-                        double amm = Double.valueOf(webElements[6].getText());
-                        Integer esp = Integer.valueOf(webElements[7].getText());
-                        Integer rigPar = Integer.valueOf(webElements[8].getText());
-                        Integer rigSba = Integer.valueOf(webElements[9].getText());
-                        Integer auto = Integer.valueOf(webElements[10].getText());
+                        Double goals = Double.valueOf(webElements[4].getText());
+                        Double amm = Double.valueOf(webElements[6].getText());
+                        Double esp = Double.valueOf(webElements[7].getText());
+                        Double rigPar = Double.valueOf(webElements[8].getText());
+                        Double rigSba = Double.valueOf(webElements[9].getText());
+                        Double auto = Double.valueOf(webElements[10].getText());
+                        Double totGazza = Double.valueOf(webElements[11].getText().replace("PT", ""));
+                        Double goalTradotti = 0d;
+                        Double autoGoalTradotti = 0d;
                         boolean portiereODifensore = ruolo.equals("PR") || ruolo.equals("DF");
                         boolean centroCampista = ruolo.equals("CC");
                         boolean portiere = ruolo.equals("PR");
-                        int goalTradotti = 0;
-                        if (0 != goals) {
-                            if (portiereODifensore) {
-                                goalTradotti = (goals / 5) * 4;
-                            } else if (centroCampista) {
-                                goalTradotti = (goals / 4) * 3;
-                            } else {
-                                goalTradotti = goals;
-                            }
+                        goalTradotti = translateGoalsByRole(goals, goalTradotti, portiereODifensore, centroCampista);
+                        autoGoalTradotti = translateAutoGoalByRole(auto, portiere, autoGoalTradotti);
+                        if (portiere) {
+                            // We are forced to consider the total because the Gazzetta does not insert the goals
+                            // taken by the goalkeeper
+                            voto = totGazza - goals + goalTradotti - auto + autoGoalTradotti;
+                        } else {
+                            voto = votoGazza + goalTradotti + amm + esp + rigPar + rigSba + autoGoalTradotti;
                         }
-                        int autoGoalTradotti = 0;
-                        if (0 != auto) {
-                            if (portiere) {
-                                autoGoalTradotti = auto * 2;
-                            } else {
-                                autoGoalTradotti = auto;
-                            }
-                        }
-                        voto = votoGazza + goalTradotti + amm + esp + rigPar + rigSba + autoGoalTradotti;
 
                         playersStatses.add(new PlayersStats(nome, ruolo, teamName,
                                 voto, goalTradotti, 0, amm, esp, rigPar, rigSba, autoGoalTradotti));
@@ -71,5 +64,29 @@ public class DataExtractorUtility {
         }
         return new TeamStats(teamName, playersStatses, coachStats);
 
+    }
+
+    private static Double translateAutoGoalByRole(Double auto, boolean portiere, Double autoGoalTradotti) {
+        if (0 != auto) {
+            if (portiere) {
+                autoGoalTradotti = auto * 2;
+            } else {
+                autoGoalTradotti = auto;
+            }
+        }
+        return autoGoalTradotti;
+    }
+
+    private static Double translateGoalsByRole(Double goals, Double goalTradotti, boolean portiereODifensore, boolean centroCampista) {
+        if (0 != goals) {
+            if (portiereODifensore) {
+                goalTradotti = (goals / 5) * 4;
+            } else if (centroCampista) {
+                goalTradotti = (goals / 4) * 3;
+            } else {
+                goalTradotti = goals;
+            }
+        }
+        return goalTradotti;
     }
 }
