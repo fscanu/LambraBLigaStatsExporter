@@ -9,11 +9,14 @@ import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.firefox.FirefoxProfile;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,10 +66,18 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     }
 
     private WebDriver getFirefoxDriver() {
+
         System.setProperty("webdriver.gecko.driver", "/Users/scanufe/Downloads/geckodriver");
         DesiredCapabilities capabilities = DesiredCapabilities.firefox();
         capabilities.setCapability("marionette", true);
-        return new FirefoxDriver(capabilities);
+        FirefoxBinary binary = new FirefoxBinary();
+        File firefoxProfileFolder = new
+                File("/Users/scanufe/Library/Application Support/Firefox/Profiles/waogs32f.lambrabliga/");
+        FirefoxProfile profile = new FirefoxProfile(firefoxProfileFolder);
+        profile.setAcceptUntrustedCertificates(true);
+        return new FirefoxDriver(binary, profile, capabilities);
+
+
     }
 
     private WebDriver accessStatistichePage() {
