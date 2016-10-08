@@ -43,7 +43,7 @@ public class TestSerializationUtil {
     @Ignore
     public void shouldFindThePlayer() throws IOException, ClassNotFoundException {
         //given
-        Object listTeamStats1 = SerializationUtil.deserialize("1_giornata_LambraBLiga.ser");
+        Object listTeamStats1 = SerializationUtil.deserialize("7_giornata_LambraBLiga.ser");
         assertTrue(listTeamStats1 instanceof Map);
         listTeamStats = new HashMap<String, TeamStats>();
         listTeamStats.putAll((Map<String, TeamStats>) listTeamStats1);
@@ -53,7 +53,16 @@ public class TestSerializationUtil {
 
         //then
         assertNotNull(playersStats);
-        assertEquals(4.0d, playersStats.getVote(), 0);
+        assertEquals(0.0d, playersStats.getVote(), 0);
+
+
+        playerToSearch = PlayersStats.builder().name("Micai").role("PR").teamName("Bari").build();
+        //when
+        playersStats = searchPlayer(playerToSearch);
+
+        //then
+        assertNotNull(playersStats);
+        assertEquals(0.0d, playersStats.getVote(), 0);
 
     }
 

@@ -118,6 +118,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
             final String teamName = teamInfo.getTeamName();
             CoachStats coachStats = collectCoachStats(driver, teamName, round);
 
+            LOGGER.info(coachStats);
             driver.get(teamInfo.getHref());
 
             findTheRightRound(round, driver);

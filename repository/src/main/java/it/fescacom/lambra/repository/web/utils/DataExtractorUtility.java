@@ -34,6 +34,7 @@ public class DataExtractorUtility {
                     Double voto = 0d;
                     if (!ruolo.equals("AL")) {
                         Double goals = Double.valueOf(webElements[4].getText());
+                        Double ass = Double.valueOf(webElements[5].getText());
                         Double amm = Double.valueOf(webElements[6].getText());
                         Double esp = Double.valueOf(webElements[7].getText());
                         Double rigPar = Double.valueOf(webElements[8].getText());
@@ -50,7 +51,7 @@ public class DataExtractorUtility {
                         if (portiere) {
                             // We are forced to consider the total because the Gazzetta does not insert the goals
                             // taken by the goalkeeper
-                            voto = totGazza - goals + goalTradotti - auto + autoGoalTradotti;
+                            voto = totGazza;
                         } else {
                             voto = votoGazza + goalTradotti + amm + esp + rigPar + rigSba + autoGoalTradotti;
                         }
@@ -62,7 +63,7 @@ public class DataExtractorUtility {
                                         teamName(teamName).
                                         vote(voto).
                                         goalBonus(goalTradotti).
-                                        assistBonus(0).
+                                        assistBonus(ass).
                                         yellowCardMalus(amm).
                                         redCardMalus(esp).
                                         penaltyDefendedBonus(rigPar).
@@ -91,8 +92,13 @@ public class DataExtractorUtility {
 
     private static Double translateGoalsByRole(Double goals, Double goalTradotti, boolean portiereODifensore, boolean centroCampista) {
         if (0 != goals) {
+            boolean noNegativeGoals = goals > 0;
             if (portiereODifensore) {
-                goalTradotti = (goals / 5) * 4;
+                if (noNegativeGoals) {
+                    goalTradotti = (goals / 5) * 4;
+                } else {
+                    goalTradotti = goals;
+                }
             } else if (centroCampista) {
                 goalTradotti = (goals / 4) * 3;
             } else {
