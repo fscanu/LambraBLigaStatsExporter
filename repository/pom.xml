@@ -21,6 +21,16 @@
                 </includes>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/*.ser</include>
+
+                </includes>
+            </testResource>
+        </testResources>
     </build>
 
     <dependencies>

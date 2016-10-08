@@ -23,6 +23,7 @@ import java.util.Map;
 import static it.fescacom.lambra.common.UsefulMethods.waitForIdElement;
 import static it.fescacom.lambra.common.UsefulMethods.waitForXpathElement;
 import static it.fescacom.lambra.common.constants.Constants.*;
+import static it.fescacom.lambra.repository.web.constant.WebElementConstants.*;
 import static it.fescacom.lambra.repository.web.utils.DataExtractorUtility.collectTeamStatsData;
 
 /**
@@ -31,18 +32,27 @@ import static it.fescacom.lambra.repository.web.utils.DataExtractorUtility.colle
 @Service("teamStatsRepository")
 public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
 
+
     private static final Logger LOGGER = Logger.getLogger(TeamStatsRepositoryWebImpl.class);
     private WebDriver driver;
 
-    @Value("${accessor.url}")
-    private String accessorUrl;
+    private final String accessorUrl;
 
-    @Value("${accessor.email}")
-    private String accessorEmail;
+    private final String accessorEmail;
 
-    @Value("${accessor.password}")
-    private String accessorPassword;
+    private final String accessorPassword;
+
     private boolean firstAccess = true;
+
+    public TeamStatsRepositoryWebImpl(
+            @Value("${accessor.url}") String accessorUrl,
+            @Value("${accessor.email}") String accessorEmail,
+            @Value("${accessor.password}") String accessorPassword) {
+        this.accessorUrl = accessorUrl;
+        this.accessorEmail = accessorEmail;
+        this.accessorPassword = accessorPassword;
+        this.firstAccess = true;
+    }
 
     private WebDriver getDriver(String url) {
         if (null == driver) {
@@ -140,24 +150,24 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     private void findTheRightRound(int round, WebDriver driver) {
         WebElement round_number;
 
-        waitForIdElement(driver, SECONDS_DEFAULT, "round_number");
+        waitForIdElement(driver, SECONDS_DEFAULT, ROUND_NUMBER);
         Integer roundNumberValue;
-        round_number = driver.findElement(By.id("round_number"));
+        round_number = driver.findElement(By.id(ROUND_NUMBER));
         roundNumberValue = Integer.valueOf(round_number.getText());
         findRound(driver);
         while (roundNumberValue != round) {
             if (roundNumberValue < round) {
-                driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i")).click();
+                driver.findElement(By.xpath(ARROW_NEXT)).click();
             } else {
-                driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i")).click();
+                driver.findElement(By.xpath(ARROW_PREV)).click();
             }
             try {
-                round_number = driver.findElement(By.id("round_number"));
+                round_number = driver.findElement(By.id(ROUND_NUMBER));
                 roundNumberValue = Integer.valueOf(round_number.getText());
             } catch (org.openqa.selenium.StaleElementReferenceException e) {
 
-                waitForIdElement(driver, SECONDS_DEFAULT, "round_number");
-                round_number = driver.findElement(By.id("round_number"));
+                waitForIdElement(driver, SECONDS_DEFAULT, ROUND_NUMBER);
+                round_number = driver.findElement(By.id(ROUND_NUMBER));
                 roundNumberValue = Integer.valueOf(round_number.getText());
 
             }
@@ -200,43 +210,50 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         Double vote = 0d;
         Double redCardMalus = 0d;
 
-        WebElement coachTable = driver.findElement(By.className("player-stats"));
+        try {
+            WebElement coachTable = driver.findElement(By.className("player-stats"));
 
-        List<WebElement> coachMatches = coachTable.findElements(By.tagName(TAG_TR));
-        WebElement[] matches = coachMatches.toArray(new WebElement[coachMatches.size()]);
+            List<WebElement> coachMatches = coachTable.findElements(By.tagName(TAG_TR));
+            WebElement[] matches = coachMatches.toArray(new WebElement[coachMatches.size()]);
 
-        for (int roundIndex = 1; roundIndex < matches.length; roundIndex++) {
-            WebElement match = matches[roundIndex];
-            List<WebElement> matchStats = match.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
-            WebElement[] matchStatsarray = matchStats.toArray(new WebElement[matchStats.size()]);
+            for (int roundIndex = 1; roundIndex < matches.length; roundIndex++) {
+                WebElement match = matches[roundIndex];
+                List<WebElement> matchStats = match.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
+                WebElement[] matchStatsarray = matchStats.toArray(new WebElement[matchStats.size()]);
 
-            Integer roundFromRow = Integer.valueOf(matchStatsarray[0].getText());
-            if (roundFromRow.equals(round)) {
-                vote = Double.valueOf(matchStatsarray[2].getText());
-                redCardMalus = Double.valueOf(matchStatsarray[3].getText());
+                Integer roundFromRow = Integer.valueOf(matchStatsarray[0].getText());
+                if (roundFromRow.equals(round)) {
+                    vote = Double.valueOf(matchStatsarray[2].getText());
+                    redCardMalus = Double.valueOf(matchStatsarray[3].getText());
 
-                return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+                    return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+                }
             }
+            return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+
+        } catch (org.openqa.selenium.NoSuchElementException ene) {
+            return new CoachStats("ALLENATORE - NUOVO ANCORA SENZA VOTO", "AL", teamName, vote, redCardMalus);
         }
-        return new CoachStats(coachName, "AL", teamName, vote, redCardMalus);
+
     }
 
     private void findRound(WebDriver driver) {
         try {
-            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i"));
+            driver.findElement(By.xpath(ARROW_PREV));
         } catch (org.openqa.selenium.NoSuchElementException nse) {
-            LOGGER.error("Error element not recognized");
+            LOGGER.error("Waiting for the element!!!!ARROW_PREV");
         } catch (org.openqa.selenium.StaleElementReferenceException e) {
-            waitForXpathElement(driver, SECONDS_DEFAULT, "//div[@id='team_round_box']/div[2]/div/div/span/i");
-            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div/span/i"));
+            waitForXpathElement(driver, SECONDS_DEFAULT, ARROW_PREV);
+            driver.findElement(By.xpath(ARROW_PREV));
         }
         try {
-            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i"));
+            driver.findElement(By.xpath(ARROW_NEXT));
         } catch (org.openqa.selenium.NoSuchElementException nse) {
-            LOGGER.error("Error element not recognized");
+            LOGGER.error("Waiting for the element!!!!ARROW_NEXT");
         } catch (org.openqa.selenium.StaleElementReferenceException e) {
-            waitForXpathElement(driver, SECONDS_DEFAULT, "//div[@id='team_round_box']/div[2]/div/div[3]/span/i");
-            driver.findElement(By.xpath("//div[@id='team_round_box']/div[2]/div/div[3]/span/i"));
+            waitForXpathElement(driver, SECONDS_DEFAULT, ARROW_NEXT);
+            driver.findElement(By.xpath(ARROW_NEXT));
+
         }
     }
 

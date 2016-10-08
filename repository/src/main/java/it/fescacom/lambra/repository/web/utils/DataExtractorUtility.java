@@ -55,8 +55,20 @@ public class DataExtractorUtility {
                             voto = votoGazza + goalTradotti + amm + esp + rigPar + rigSba + autoGoalTradotti;
                         }
 
-                        playersStatses.add(new PlayersStats(nome, ruolo, teamName,
-                                voto, goalTradotti, 0, amm, esp, rigPar, rigSba, autoGoalTradotti));
+                        playersStatses.add(
+                                PlayersStats.builder().
+                                        name(nome).
+                                        role(ruolo).
+                                        teamName(teamName).
+                                        vote(voto).
+                                        goalBonus(goalTradotti).
+                                        assistBonus(0).
+                                        yellowCardMalus(amm).
+                                        redCardMalus(esp).
+                                        penaltyDefendedBonus(rigPar).
+                                        penaltyDefendedMalus(rigSba).
+                                        autoGoalMalus(autoGoalTradotti)
+                                        .build());
                     }
                 }
             }
