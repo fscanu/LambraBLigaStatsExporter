@@ -3,7 +3,6 @@ package it.fescacom.lambra.repository.serialization.util;
 import it.fescacom.lambra.domain.stats.PlayersStats;
 import it.fescacom.lambra.domain.stats.TeamStats;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.io.File;
@@ -21,7 +20,7 @@ import static org.junit.Assert.*;
 public class TestSerializationUtil {
 
     private static final double SAMPLE_VOTE = 1d;
-    private Map<String, TeamStats> listTeamStats;
+    private Map<String, TeamStats> teamStats;
 
     @Before
     public void init() {
@@ -29,25 +28,25 @@ public class TestSerializationUtil {
 
     @Test
     public void serializeTeamStatsList() throws IOException {
-        SerializationUtil.serialize(listTeamStats, "listTeamStats.ser");
-        assertTrue(new File("listTeamStats.ser").exists());
+        SerializationUtil.serialize(teamStats, "teamStats.ser");
+        assertTrue(new File("teamStats.ser").exists());
     }
 
     @Test
     public void deSerializeTeamStatsList() throws IOException, ClassNotFoundException {
-        Object listTeamStats = SerializationUtil.deserialize("listTeamStats.ser");
+        Object listTeamStats = SerializationUtil.deserialize("teamStats.ser");
         assertTrue(listTeamStats instanceof List);
     }
 
     @Test
-    @Ignore
     public void shouldFindThePlayer() throws IOException, ClassNotFoundException {
         //given
-        Object listTeamStats1 = SerializationUtil.deserialize("7_giornata_LambraBLiga.ser");
+        Object listTeamStats1 = SerializationUtil.deserialize("8_giornata_LambraBLiga.ser");
         assertTrue(listTeamStats1 instanceof Map);
-        listTeamStats = new HashMap<String, TeamStats>();
-        listTeamStats.putAll((Map<String, TeamStats>) listTeamStats1);
+        teamStats = new HashMap<String, TeamStats>();
+        teamStats.putAll((Map<String, TeamStats>) listTeamStats1);
         PlayersStats playerToSearch = PlayersStats.builder().name("Micai").role("PR").teamName("Bari").build();
+
         //when
         PlayersStats playersStats = searchPlayer(playerToSearch);
 
@@ -67,7 +66,7 @@ public class TestSerializationUtil {
     }
 
     private PlayersStats searchPlayer(PlayersStats playerToSearch) {
-        TeamStats teamStats = listTeamStats.get(playerToSearch.getTeamName());
+        TeamStats teamStats = this.teamStats.get(playerToSearch.getTeamName());
 
         HashSet<PlayersStats> players = teamStats.getPlayers();
         for (PlayersStats player : players) {

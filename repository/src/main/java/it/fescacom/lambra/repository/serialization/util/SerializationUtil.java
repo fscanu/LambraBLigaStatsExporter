@@ -17,6 +17,10 @@ public class SerializationUtil {
     public static Object deserialize(String fileName) throws IOException,
             ClassNotFoundException {
         FileInputStream fis = new FileInputStream(fileName);
+        return deserialize(fis);
+    }
+
+    public static Object deserialize(InputStream fis) throws IOException, ClassNotFoundException {
         BufferedInputStream bis = new BufferedInputStream(fis);
         ObjectInputStream ois = new ObjectInputStream(bis);
         Object obj = ois.readObject();
@@ -30,6 +34,10 @@ public class SerializationUtil {
     public static void serialize(Object obj, String fileName)
             throws IOException {
         FileOutputStream fos = new FileOutputStream(fileName);
+        serialize(obj, fos);
+    }
+
+    public static void serialize(Object obj, OutputStream fos) throws IOException {
         BufferedOutputStream bos = new BufferedOutputStream(fos);
         ObjectOutputStream oos = new ObjectOutputStream(bos);
         oos.writeObject(obj);
