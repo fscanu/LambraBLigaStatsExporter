@@ -1,7 +1,7 @@
 package it.fescacom.lambra.service.exporter.collector;
 
 import it.fescacom.lambra.domain.stats.TeamStats;
-import it.fescacom.lambra.repository.web.TeamStatsRepositoryWebImpl;
+import it.fescacom.lambra.repository.web.TeamStatsFirefoxRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +12,10 @@ import java.util.Map;
  */
 @Service
 public class CollectorStatsStatsServiceImpl implements CollectorStatsService {
-    private final TeamStatsRepositoryWebImpl teamStatsRepository;
+    private final TeamStatsFirefoxRepository teamStatsRepository;
 
     @Autowired
-    public CollectorStatsStatsServiceImpl(TeamStatsRepositoryWebImpl teamStatsRepository) {
+    public CollectorStatsStatsServiceImpl(TeamStatsFirefoxRepository teamStatsRepository) {
         this.teamStatsRepository = teamStatsRepository;
     }
 

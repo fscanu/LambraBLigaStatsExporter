@@ -4,20 +4,17 @@ import it.fescacom.lambra.domain.stats.CoachStats;
 import it.fescacom.lambra.domain.stats.TeamStats;
 import it.fescacom.lambra.repository.TeamStatsRepository;
 import it.fescacom.lambra.repository.serialization.util.SerializationUtil;
+import it.fescacom.lambra.repository.web.connection.BrowserConnector;
 import lombok.Data;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.firefox.FirefoxBinary;
-import org.openqa.selenium.firefox.FirefoxDriver;
-import org.openqa.selenium.firefox.FirefoxProfile;
-import org.openqa.selenium.htmlunit.HtmlUnitDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,11 +31,10 @@ import static it.fescacom.lambra.repository.web.utils.DataExtractorUtility.colle
  * Created by scanufe on 11/09/16.
  */
 @Service("teamStatsRepository")
-public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
+public class TeamStatsFirefoxRepository implements TeamStatsRepository {
 
 
-    private static final Logger LOGGER = Logger.getLogger(TeamStatsRepositoryWebImpl.class);
-    private WebDriver driver;
+    private static final Logger LOGGER = Logger.getLogger(TeamStatsFirefoxRepository.class);
 
     private final String accessorUrl;
 
@@ -48,39 +44,31 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
 
     private boolean firstAccess = true;
 
-    public TeamStatsRepositoryWebImpl(
+    @Qualifier("firefoxConnector")
+    private final BrowserConnector browserConnector;
+
+    private WebDriver driver;
+
+    @Autowired
+    public TeamStatsFirefoxRepository(
             @Value("${accessor.url}") String accessorUrl,
             @Value("${accessor.email}") String accessorEmail,
-            @Value("${accessor.password}") String accessorPassword) {
+            @Value("${accessor.password}") String accessorPassword,
+            BrowserConnector firefoxConnector) {
+
         this.accessorUrl = accessorUrl;
         this.accessorEmail = accessorEmail;
         this.accessorPassword = accessorPassword;
+        this.browserConnector = firefoxConnector;
         this.firstAccess = true;
     }
 
     private WebDriver getDriver(String url) {
         if (null == driver) {
-            driver = getFirefoxDriver();
+            driver = browserConnector.getDriver();
         }
         driver.get(url);
         return driver;
-    }
-
-    private WebDriver getHtmlUnitDriver() {
-        return new HtmlUnitDriver();
-    }
-
-    private WebDriver getFirefoxDriver() {
-
-        System.setProperty("webdriver.gecko.driver", "/Users/scanufe/Downloads/geckodriver");
-        DesiredCapabilities capabilities = DesiredCapabilities.firefox();
-        capabilities.setCapability("marionette", true);
-        FirefoxBinary binary = new FirefoxBinary();
-        File firefoxProfileFolder = new
-                File("/Users/scanufe/Library/Application Support/Firefox/Profiles/waogs32f.lambrabliga/");
-        FirefoxProfile profile = new FirefoxProfile(firefoxProfileFolder);
-        profile.setAcceptUntrustedCertificates(true);
-        return new FirefoxDriver(binary, profile, capabilities);
     }
 
     private WebDriver accessStatistichePage() {
@@ -158,7 +146,7 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
             waitForIdElement(driver, SECONDS_DEFAULT, "table_coach");
             coachStats = extractCoachStatsFromPage(driver, teamName, round);
         }
-        LOGGER.info("Trovato Allentore della: " + coachStats.getTeamName());
+        LOGGER.info("Trovato Allenatore della: " + coachStats.getTeamName());
         return coachStats;
     }
 
