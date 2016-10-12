@@ -12,6 +12,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.firefox.FirefoxBinary;
 import org.openqa.selenium.firefox.FirefoxDriver;
 import org.openqa.selenium.firefox.FirefoxProfile;
+import org.openqa.selenium.htmlunit.HtmlUnitDriver;
 import org.openqa.selenium.remote.DesiredCapabilities;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,10 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         return driver;
     }
 
+    private WebDriver getHtmlUnitDriver() {
+        return new HtmlUnitDriver();
+    }
+
     private WebDriver getFirefoxDriver() {
 
         System.setProperty("webdriver.gecko.driver", "/Users/scanufe/Downloads/geckodriver");
@@ -76,8 +81,6 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
         FirefoxProfile profile = new FirefoxProfile(firefoxProfileFolder);
         profile.setAcceptUntrustedCertificates(true);
         return new FirefoxDriver(binary, profile, capabilities);
-
-
     }
 
     private WebDriver accessStatistichePage() {
