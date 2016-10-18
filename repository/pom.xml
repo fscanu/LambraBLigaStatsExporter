@@ -26,7 +26,7 @@
                 <directory>${project.basedir}/src/test/resources</directory>
                 <filtering>true</filtering>
                 <includes>
-                    <include>**/*.ser</include>
+                    <include>**/*</include>
 
                 </includes>
             </testResource>

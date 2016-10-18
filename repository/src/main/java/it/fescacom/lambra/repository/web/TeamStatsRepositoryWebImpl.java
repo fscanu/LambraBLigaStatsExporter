@@ -67,12 +67,14 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
 
     private WebDriver getFirefoxDriver() {
 
-        System.setProperty("webdriver.gecko.driver", "/Users/scanufe/Downloads/geckodriver");
+        System.setProperty("webdriver.gecko.driver", "/drivers/geckodriver");
         DesiredCapabilities capabilities = DesiredCapabilities.firefox();
         capabilities.setCapability("marionette", true);
         FirefoxBinary binary = new FirefoxBinary();
         File firefoxProfileFolder = new
                 File("/Users/scanufe/Library/Application Support/Firefox/Profiles/waogs32f.lambrabliga/");
+//        File firefoxProfileFolder = new
+//                File("C:\\Users\\scanufe\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\European.Commission");
         FirefoxProfile profile = new FirefoxProfile(firefoxProfileFolder);
         profile.setAcceptUntrustedCertificates(true);
         return new FirefoxDriver(binary, profile, capabilities);
