@@ -4,27 +4,39 @@ import it.fescacom.lambra.domain.stats.CoachStats;
 import it.fescacom.lambra.domain.stats.PlayersStats;
 import it.fescacom.lambra.domain.stats.TeamStats;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 
 import java.util.HashSet;
 import java.util.List;
 
-import static it.fescacom.lambra.common.constants.Constants.TAG_TR;
-import static it.fescacom.lambra.common.constants.Constants.XPATH_TH_TD_IN_TABLE;
+import static it.fescacom.lambra.common.UsefulMethods.waitForIdElement;
+import static it.fescacom.lambra.common.constants.Constants.*;
 
 /**
  * Created by scanufe on 21/09/16.
  */
 public class DataExtractorUtility {
 
-    public static TeamStats collectTeamStatsData(String teamName, CoachStats coachStats, WebElement... tablePlayers) {
+    public static TeamStats collectTeamStatsData(String teamName, CoachStats coachStats, WebDriver driver, WebElement... tablePlayers) {
         HashSet<PlayersStats> playersStatses = new HashSet<PlayersStats>();
         for (WebElement tablePlayer : tablePlayers) {
-            List<WebElement> allPageRows = tablePlayer.findElements(By.tagName(TAG_TR));
+            List<WebElement> allPageRows;
+            try {
+                allPageRows = tablePlayer.findElements(By.tagName(TAG_TR));
+            } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                waitForIdElement(driver, SECONDS_DEFAULT, TAG_TR);
+                allPageRows = tablePlayer.findElements(By.tagName(TAG_TR));
+            }
             for (int i = 0; i < allPageRows.size(); i++) {
                 WebElement row = allPageRows.get(i);
-
-                List<WebElement> cells = row.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
+                List<WebElement> cells;
+                try {
+                    cells = row.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
+                } catch (org.openqa.selenium.StaleElementReferenceException e) {
+                    waitForIdElement(driver, SECONDS_DEFAULT, XPATH_TH_TD_IN_TABLE);
+                    cells = row.findElements(By.xpath(XPATH_TH_TD_IN_TABLE));
+                }
                 if (i != 0) {
                     //            Voto = Votogazza + goal(SE P o D 4 altri 3) - Amm * 0.5 - Esp * 1 + RigPar 3 + RigSba -3 + Auto -2
                     WebElement[] webElements = cells.toArray(new WebElement[cells.size()]);

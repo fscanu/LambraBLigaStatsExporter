@@ -44,43 +44,45 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     private final String accessorEmail;
 
     private final String accessorPassword;
+    private final String serializationDir;
 
     private boolean firstAccess = true;
 
     public TeamStatsRepositoryWebImpl(
             @Value("${accessor.url}") String accessorUrl,
             @Value("${accessor.email}") String accessorEmail,
-            @Value("${accessor.password}") String accessorPassword) {
+            @Value("${accessor.password}") String accessorPassword,
+            @Value("${serialization.dir}") String serializationDir) {
         this.accessorUrl = accessorUrl;
         this.accessorEmail = accessorEmail;
         this.accessorPassword = accessorPassword;
+        this.serializationDir = serializationDir;
         this.firstAccess = true;
     }
 
     private WebDriver getDriver(String url) {
         if (null == driver) {
-            driver = getFirefoxDriver();
+            try {
+                driver = getFirefoxDriver();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         driver.get(url);
         return driver;
     }
 
-    private WebDriver getFirefoxDriver() {
-
-        System.setProperty("webdriver.gecko.driver", "/drivers/geckodriver");
+    private WebDriver getFirefoxDriver() throws IOException {
+        System.setProperty("webdriver.gecko.driver", "/Users/scanufe/Downloads/geckodriver");
         DesiredCapabilities capabilities = DesiredCapabilities.firefox();
         capabilities.setCapability("marionette", true);
-        FirefoxBinary binary = new FirefoxBinary();
-        File firefoxProfileFolder = new
-                File("/Users/scanufe/Library/Application Support/Firefox/Profiles/waogs32f.lambrabliga/");
-//        File firefoxProfileFolder = new
-//                File("C:\\Users\\scanufe\\AppData\\Roaming\\Mozilla\\Firefox\\Profiles\\European.Commission");
+        File firefoxProfileFolder = new File("/Users/scanufe/Library/Application Support/Firefox/Profiles/waogs32f.lambrabliga/");
         FirefoxProfile profile = new FirefoxProfile(firefoxProfileFolder);
         profile.setAcceptUntrustedCertificates(true);
-        return new FirefoxDriver(binary, profile, capabilities);
 
-
+        return new FirefoxDriver(new FirefoxBinary(), profile, capabilities);
     }
+
 
     private WebDriver accessStatistichePage() {
 
@@ -106,40 +108,56 @@ public class TeamStatsRepositoryWebImpl implements TeamStatsRepository {
     }
 
     public Map<String, TeamStats> findAllTeamStats(int round) {
+
         Map<String, TeamStats> teamStatsMap = new HashMap<String, TeamStats>();
+        String serializedFile = serializationDir + round + "_giornata_LambraBLiga.ser";
+        if (!alreadyExistRoundSerialized(round)) {
+            final WebDriver driver = accessStatistichePage();
 
-        final WebDriver driver = accessStatistichePage();
+            waitForIdElement(driver, SECONDS_DEFAULT, "table_players");
 
-        waitForIdElement(driver, SECONDS_DEFAULT, "table_players");
+            List<TeamInfo> teamInfos = getIDsForTheTeamsIPage(driver);
+            for (TeamInfo teamInfo : teamInfos) {
 
-        List<TeamInfo> teamInfos = getIDsForTheTeamsIPage(driver);
-        for (TeamInfo teamInfo : teamInfos) {
+                //find the right round for the coach
+                driver.get(accessorUrl);
+                final String teamName = teamInfo.getTeamName();
+                CoachStats coachStats = collectCoachStats(driver, teamName, round);
 
-            //find the right round for the coach
-            driver.get(accessorUrl);
-            final String teamName = teamInfo.getTeamName();
-            CoachStats coachStats = collectCoachStats(driver, teamName, round);
+                LOGGER.info(coachStats);
+                driver.get(teamInfo.getHref());
 
-            LOGGER.info(coachStats);
-            driver.get(teamInfo.getHref());
+                findTheRightRound(round, driver);
 
-            findTheRightRound(round, driver);
+                WebElement regulars = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_REGULARS));
+                WebElement reserves = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_RESERVES));
 
-            WebElement regulars = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_REGULARS));
-            WebElement reserves = driver.findElement(By.xpath(TABLE_PLAYERS_STATS_RESERVES));
+                TeamStats teamStatsPlayers = collectTeamStatsData(teamName, coachStats, driver, regulars, reserves);
+                teamStatsMap.put(teamName, teamStatsPlayers);
 
-            TeamStats teamStatsPlayers = collectTeamStatsData(teamName, coachStats, regulars, reserves);
-            teamStatsMap.put(teamName, teamStatsPlayers);
+                LOGGER.info(teamStatsPlayers.getTeamName());
 
-            LOGGER.info(teamStatsPlayers.getTeamName());
-
-        }
-        try {
-            SerializationUtil.serialize(teamStatsMap, round + "_giornata_LambraBLiga.ser");
-        } catch (IOException e) {
-            LOGGER.error("Error during serialization");
+            }
+            try {
+                SerializationUtil.serialize(teamStatsMap, serializedFile);
+            } catch (IOException e) {
+                LOGGER.error("Error during serialization");
+            }
+        } else {
+            try {
+                teamStatsMap = (Map<String, TeamStats>) SerializationUtil.deserialize(serializedFile);
+            } catch (IOException e) {
+                LOGGER.error("Error during de-serialization");
+            } catch (ClassNotFoundException e) {
+                LOGGER.error("Error during de-serialization");
+            }
         }
         return teamStatsMap;
+    }
+
+    private boolean alreadyExistRoundSerialized(int round) {
+        boolean exists = new File(serializationDir + round + "_giornata_LambraBLiga.ser").exists();
+        return exists;
     }
 
     private CoachStats collectCoachStats(WebDriver driver, String teamName, int round) {

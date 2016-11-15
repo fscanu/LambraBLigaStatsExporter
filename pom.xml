@@ -21,7 +21,7 @@
         <url>http://www.fescacom.com</url>
     </organization>
     <properties>
-        <selenium.version>2.53.1</selenium.version>
+        <selenium.version>3.0.1</selenium.version>
         <poi.version>3.14</poi.version>
         <log4j.version>1.2.17</log4j.version>
         <junit.version>4.12</junit.version>

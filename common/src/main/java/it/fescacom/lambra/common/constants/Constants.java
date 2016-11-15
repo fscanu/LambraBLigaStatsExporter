@@ -5,7 +5,7 @@ package it.fescacom.lambra.common.constants;
  */
 public class Constants {
     //Page constants
-    public static final int SECONDS_DEFAULT = 10;
+    public static final int SECONDS_DEFAULT = 30;
     public static final String TABLE_PLAYERS_STATS_REGULARS = "//div[@id='team_player_stats']/table[1]";
     public static final String TABLE_PLAYERS_STATS_RESERVES = "//div[@id='team_player_stats']/table[3]";
     public static final String TABLE_PLAYERS_STATS_COACH = "//a[contains(text(),'ALLENATORE')]";

@@ -21,9 +21,9 @@ public class ExporterTest {
     private CollectorStatsStatsServiceImpl collStatsService;
 
     @Test
-    public void shouldCreateExcelExportOfThe6thRound() {
+    public void shouldCreateExcelExportOfThenthRound() {
         Exporter exporter = new RoundByRoundExporter(collStatsService);
-        exporter.export("LambraBLiga.xls", 1);
-        Assert.assertTrue(new File("LambraBLiga.xls").exists());
+        exporter.export("LambraBLiga-All.xls", 8, 9, 10, 11, 12, 13, 14);
+        Assert.assertTrue(new File("LambraBLiga-All.xls").exists());
     }
 }
